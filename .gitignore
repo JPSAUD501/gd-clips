@@ -1,5 +1,5 @@
+.env
 yarn.lock
 node_modules
 db
 client-secret
-.env
