@@ -1,0 +1,36 @@
+const { outplayedDownloadVideo } = require('../functions/clipsProviders/outplayed')
+const fs = require('fs')
+
+const validExemples = {
+  outplayed: {
+    clipProviderId: 'Q5ooPb',
+    savePath: './test/outplayed/videoDownloader'
+  }
+}
+
+const invalidExemples = {
+  outplayed: {
+    clipProviderId: 'Q5osPb',
+    savePath: './test/outplayed/errorVideoDownloader'
+  }
+}
+
+if (!fs.existsSync('./test/outplayed')) fs.mkdirSync('./test/outplayed')
+
+if (!fs.existsSync('./test/outplayed/videoDownloader')) fs.mkdirSync('./test/outplayed/videoDownloader')
+if (!fs.existsSync('./test/outplayed/errorVideoDownloader')) fs.mkdirSync('./test/outplayed/errorVideoDownloader')
+
+if (fs.existsSync('./test/outplayed/videoDownloader/video.mp4')) fs.unlinkSync('./test/outplayed/videoDownloader/video.mp4')
+if (fs.existsSync('./test/outplayed/errorVideoDownloader/video.mp4')) fs.unlinkSync('./test/outplayed/errorVideoDownloader/video.mp4')
+
+test('outplayedDownloadVideo', async () => {
+  const { clipProviderId, savePath } = validExemples.outplayed
+  await outplayedDownloadVideo(clipProviderId, savePath)
+  expect(fs.existsSync(`${savePath}/video.mp4`)).toBe(true)
+}, 100000)
+
+test('outplayedDownloadVideo-error', async () => {
+  const { clipProviderId, savePath } = invalidExemples.outplayed
+  await outplayedDownloadVideo(clipProviderId, savePath)
+  expect(fs.existsSync(`${savePath}/video.mp4`)).toBe(false)
+}, 100000)

@@ -4,11 +4,32 @@
   "main": "index.js",
   "author": "JPSAUD501",
   "license": "MPL-2.0",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^0.26.1",
+    "discord-modals": "^1.3.3",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "editly": "^0.11.3",
+    "fs": "^0.0.1-security",
+    "get-video-duration": "^4.0.0",
+    "google-auth-library": "^7.14.1",
+    "googleapis": "^100.0.0",
+    "yaml": "^1.10.2"
+  },
   "devDependencies": {
-    "eslint": "^7.12.1",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1"
+    "eslint-plugin-promise": "^5.2.0",
+    "jest": "^27.5.1",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
   }
 }
