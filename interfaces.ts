@@ -21,3 +21,13 @@ export interface IVideoData {
   provider: string,
   providerColor: string,
 }
+
+export interface IClipData {
+  gdClipId: string,
+  clipCategory: 'FUNNY' | 'EPIC' | 'TRASH',
+  clipAuthorDiscordId: string,
+  clipProvider: string,
+  clipId: string,
+  clipDate: Date,
+  clipRawUrl?: string,
+}

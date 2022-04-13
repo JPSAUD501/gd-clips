@@ -6,11 +6,12 @@ import { newClipMessage } from './functions/newClipMessage'
 import { clipPermissionResponse } from './functions/clipPermissionResponse'
 import { clipApprovalResponse } from './functions/clipApprovalResponse'
 import { readCustomId } from './functions/common'
+import { rootDbPath } from './constants'
 
-if (!fs.existsSync('./db/EPIC')) fs.mkdirSync('./db/EPIC', { recursive: true })
-if (!fs.existsSync('./db/FUNNY')) fs.mkdirSync('./db/FUNNY', { recursive: true })
-if (!fs.existsSync('./db/EPIC-FINAL-VIDEO')) fs.mkdirSync('./db/EPIC-FINAL-VIDEO', { recursive: true })
-if (!fs.existsSync('./db/FUNNY-FINAL-VIDEO')) fs.mkdirSync('./db/FUNNY-FINAL-VIDEO', { recursive: true })
+if (!fs.existsSync(`./${rootDbPath}}/EPIC`)) fs.mkdirSync(`./${rootDbPath}/EPIC`, { recursive: true })
+if (!fs.existsSync(`./${rootDbPath}/FUNNY`)) fs.mkdirSync(`./${rootDbPath}/FUNNY`, { recursive: true })
+if (!fs.existsSync(`./${rootDbPath}/EPIC-COMPILED`)) fs.mkdirSync(`./${rootDbPath}/EPIC-COMPILED`, { recursive: true })
+if (!fs.existsSync(`./${rootDbPath}/FUNNY-COMPILED`)) fs.mkdirSync(`./${rootDbPath}/FUNNY-COMPILED`, { recursive: true })
 
 // if (!fs.existsSync('./client-secret') || !fs.existsSync('./client-secret/client_secret.json')) {
 //   try { fs.mkdirSync('./client-secret') } catch (error) {}

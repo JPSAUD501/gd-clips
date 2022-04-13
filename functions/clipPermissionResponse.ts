@@ -70,7 +70,12 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
   const modChannel = Client.channels.cache.get(config['CLIPS-MODERATION-CHANNEL-ID'])
   if (!modChannel) throw new Error('Invalid moderation channel!')
   if (!(modChannel instanceof TextChannel)) throw new Error('Invalid moderation channel (No TextChannel)!')
-  await modChannel.send({ content: `<DELETE@&${config['MODERATION-ROLE-ID']}>`, embeds: [embed], components: [actionRow] }).catch(console.error)
-
-  await interaction.user.send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube.\nID do clipe: ${interactionMsgId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipId)}`).catch(console.error)
+  await modChannel.send({
+    content: `<DELETE@&${config['MODERATION-ROLE-ID']}>`,
+    embeds: [embed],
+    components: [actionRow]
+  }).catch(console.error)
+  await interaction.user
+    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube.\nID do clipe: ${interactionMsgId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipId)}`)
+    .catch(console.error)
 }

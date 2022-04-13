@@ -5,6 +5,7 @@ import fs from 'fs'
 import { readCustomId } from './common'
 import { Client, ButtonInteraction, Message } from 'discord.js'
 import { getFullUrl } from './providers'
+import { rootDbPath } from '../constants'
 
 export async function clipApprovalResponse (interaction: ButtonInteraction, Client: Client) {
   const interactionData = readCustomId(interaction.customId)
@@ -34,10 +35,10 @@ export async function clipApprovalResponse (interaction: ButtonInteraction, Clie
   }
 
   console.log(clipInfo)
-  const clipFolderPath = `./../db/${interactionData.clipCategory}/${interactionData.gdClipId}`
+  const clipFolderPath = `./${rootDbPath}/${interactionData.clipCategory}/${interactionData.gdClipId}`
 
   fs.mkdirSync(clipFolderPath, { recursive: true })
   fs.writeFileSync(`${clipFolderPath}/info.yaml`, YAML.stringify(clipInfo), 'utf8')
 
-  // TODO: Download
+  // TODO: saveClip(interactionData.clipProvider, interactionData.clipId, clipFolderPath)
 }
