@@ -1,5 +1,5 @@
 import { interactionCustomIdSeparator, rootDbPath } from '../constants'
-import { IRequestPermission, IModPermission, IClipData } from '../interfaces'
+import { IRequestPermission, IModPermission, IClipData, checkIClipData } from '../interfaces'
 import moment from 'moment'
 import fs from 'fs'
 import YAML from 'yaml'
@@ -85,9 +85,12 @@ export function getPathsRecursively (dirPath: string): string[] {
 }
 
 export function saveClipData (clipData: IClipData) {
+  if (!checkIClipData(clipData)) return new Error(`IClipData is invalid for: ${clipData}`)
   const day = moment(clipData.clipDate).format('YYYY-MM-DD')
-  const clipPath = `../${rootDbPath}/${day}/${clipData.gdClipId}.yaml`
-  fs.writeFileSync(clipPath, YAML.stringify(clipData), 'utf8')
+  const clipDataDir = `${rootDbPath}/${clipData.clipCategory}/${day}/${clipData.gdClipId}`
+  if (!fs.existsSync(`./${clipDataDir}`)) fs.mkdirSync(`./${clipDataDir}`, { recursive: true })
+  const clipDataPath = `${rootDbPath}/${clipData.clipCategory}/${day}/${clipData.gdClipId}/info.yaml`
+  fs.writeFileSync(clipDataPath, YAML.stringify(clipData), 'utf8')
 }
 
 export function getClipData (clipId: string): IClipData | Error {
@@ -98,5 +101,6 @@ export function getClipData (clipId: string): IClipData | Error {
   if (!fs.existsSync(clipPath)) return new Error(`Clip info.yaml not found for: ${clipPath}`)
   const clipData = fs.readFileSync(clipPath, 'utf8')
   const clipDataObj = YAML.parse(clipData)
+  if (!checkIClipData(clipDataObj)) return new Error(`Clip info.yaml | IClipData is invalid for: ${clipPath}`)
   return clipDataObj as IClipData
 }
