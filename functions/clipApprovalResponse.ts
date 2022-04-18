@@ -1,14 +1,11 @@
 
-import YAML from 'yaml'
-import fs from 'fs'
-
-import { readCustomId, saveClipData } from './common'
+import { readCustomId } from './common'
 import { Client, ButtonInteraction, Message } from 'discord.js'
 import { getFullUrl } from './providers'
-import { rootDbPath } from '../constants'
 import { IClipData } from '../interfaces'
+import { saveClip } from './saveClip'
 
-export async function clipApprovalResponse (interaction: ButtonInteraction, Client: Client) {
+export async function clipApprovalResponse (interaction: ButtonInteraction, Client: Client): void {
   const interactionData = readCustomId(interaction.customId)
   if (interactionData.type !== 'MP') return
 
@@ -27,7 +24,7 @@ export async function clipApprovalResponse (interaction: ButtonInteraction, Clie
   if (!(interaction.message instanceof Message)) throw new Error('Invalid interaction message!')
   await interaction.message.delete().catch(console.error)
 
-  const clipInfo: IClipData = {
+  const clipData: IClipData = {
     gdClipId: interactionData.gdClipId,
     clipCategory: interactionData.clipCategory,
     clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
@@ -36,13 +33,5 @@ export async function clipApprovalResponse (interaction: ButtonInteraction, Clie
     clipDate: new Date().toJSON()
   }
 
-  const save = saveClipData(clipInfo)
-  if (save instanceof Error) throw new Error(`Error saving clip data!: ${save}`)
-
-  const clipFolderPath = `./${rootDbPath}/${interactionData.clipCategory}/${interactionData.gdClipId}`
-
-  fs.mkdirSync(clipFolderPath, { recursive: true })
-  fs.writeFileSync(`${clipFolderPath}/info.yaml`, YAML.stringify(clipInfo), 'utf8')
-
-  // TODO: saveClip(interactionData.clipProvider, interactionData.clipId, clipFolderPath)
+  saveClip(clipData)
 }
