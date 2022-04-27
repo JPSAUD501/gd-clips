@@ -1,5 +1,6 @@
 GUILD-ID: "720275637415182416" # Discord Guild ID
 CLIPS-CHANNEL-ID: "960323465271984148" # Channel ID for the clips channel
 CLIPS-MODERATION-CHANNEL-ID: "960454690968072192" # Channel ID for the clips moderation channel
+BOT-LOG-CHANNEL-ID: "919484652736094218" # Channel ID for the bot log channel
 MODERATION-ROLE-ID: "854548174458454036" # Role ID for the clips moderation role
 OWNER-ID: "141957307591426050" # Guild owner Discord ID

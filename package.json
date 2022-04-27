@@ -11,7 +11,7 @@
   "dependencies": {
     "@types/yaml": "^1.9.7",
     "axios": "^0.26.1",
-    "discord-modals": "^1.3.3",
+    "discord-modals": "^1.3.5",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "editly": "^0.11.3",
@@ -20,11 +20,13 @@
     "google-auth-library": "^7.14.1",
     "googleapis": "^100.0.0",
     "moment": "^2.29.2",
+    "progress": "^2.0.3",
     "ts-data-checker": "^1.2.0",
     "yaml": "^1.10.2"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
+    "@types/progress": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^7.32.0",

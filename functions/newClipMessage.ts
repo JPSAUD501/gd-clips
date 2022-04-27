@@ -37,5 +37,5 @@ export async function newClipMessage (message: Message): Promise<void> {
         }))
     )
 
-  await message.reply({ embeds: [embed], components: [actionRow] })
+  await message.reply({ embeds: [embed], components: [actionRow] }).catch(console.error)
 }

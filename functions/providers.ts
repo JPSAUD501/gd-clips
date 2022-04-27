@@ -1,5 +1,5 @@
 import { IVideoData } from '../interfaces'
-import { getOutplayedVideoId, isOutplayedValidUrl } from './clipsProviders/outplayed'
+import { getOutplayedDownloadData, getOutplayedVideoId, isOutplayedValidUrl } from './clipsProviders/outplayed'
 
 export function isValidUrl (message: string): boolean {
   if (isOutplayedValidUrl(message)) return true
@@ -40,4 +40,9 @@ export function getProviderBaseUrl (provider: string): string {
 
 export function getFullUrl (provider: string, id: string): string {
   return `${getProviderBaseUrl(provider)}${id}`
+}
+
+export function getDownloadData (provider: string, id: string): Promise<{ downloadUrl: string; videoDuration: number } | Error> {
+  if (provider === 'outplayed') return getOutplayedDownloadData(id)
+  throw new Error('Invalid provider')
 }

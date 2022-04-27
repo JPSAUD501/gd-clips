@@ -10,7 +10,7 @@ const config = YAML.parse(fs.readFileSync('./config.yaml', 'utf8'))
 export async function clipPermissionResponse (interaction: ButtonInteraction, Client: Client) {
   const interactionData = readCustomId(interaction.customId)
   if (interactionData.type !== 'RP') return
-  const interactionMsgId = interaction.message.id
+  const gdClipId = interaction.message.id
 
   if (interactionData.clipAuthorDiscordId !== interaction.user.id) return interaction.user.send('Você não é o autor do clipe e por conta disso não pode autorizar ou negar sua postagem no YouTube!').catch(console.error)
 
@@ -25,7 +25,8 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
     .setTitle(`Um novo clipe de ${interaction.user.username} aguarda aprovação!`)
     .addField('Autor:', `${interaction.user}`, true)
     .addField('Clipe:', `[Clique aqui para ver](${getFullUrl(interactionData.clipProvider, interactionData.clipId)})`, true)
-    .setFooter({ text: `Novo clip de ${interaction.user.username} no ${interactionData.clipProvider.toUpperCase()}.` })
+    // TODO: .setDescription(`O clipe deve atender pelo menos os itens abaixo para ser autorizado por você:\n${getRequirementsString(config['REQUIREMENTS'])}`)
+    .setFooter({ text: `Novo clipe de ${interaction.user.username} no ${interactionData.clipProvider.toUpperCase()}.` })
 
   const actionRow = new MessageActionRow()
     .addComponents(
@@ -34,7 +35,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
         .setStyle('SUCCESS')
         .setCustomId(newCustomId({
           type: 'MP',
-          gdClipId: interactionMsgId,
+          gdClipId: gdClipId,
           clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
           clipProvider: interactionData.clipProvider,
           clipId: interactionData.clipId,
@@ -46,7 +47,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
         .setStyle('SUCCESS')
         .setCustomId(newCustomId({
           type: 'MP',
-          gdClipId: interactionMsgId,
+          gdClipId: gdClipId,
           clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
           clipProvider: interactionData.clipProvider,
           clipId: interactionData.clipId,
@@ -58,12 +59,21 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
         .setStyle('DANGER')
         .setCustomId(newCustomId({
           type: 'MP',
-          gdClipId: interactionMsgId,
+          gdClipId: gdClipId,
           clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
           clipProvider: interactionData.clipProvider,
           clipId: interactionData.clipId,
           modResponse: 'N',
           clipCategory: 'TRASH'
+        })),
+      new MessageButton()
+        .setLabel('Enviar mensagem para autor!')
+        .setStyle('PRIMARY')
+        .setCustomId(newCustomId({
+          type: 'MRQSAM',
+          status: 'STB',
+          gdClipId: gdClipId,
+          clipAuthorDiscordId: interactionData.clipAuthorDiscordId
         }))
     )
 
@@ -76,6 +86,6 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
     components: [actionRow]
   }).catch(console.error)
   await interaction.user
-    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube.\nID do clipe: ${interactionMsgId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipId)}`)
+    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube.\nID do clipe: ${gdClipId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipId)}`)
     .catch(console.error)
 }

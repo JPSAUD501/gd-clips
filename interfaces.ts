@@ -26,6 +26,28 @@ export function checkIModPermission (obj: any): boolean {
   return interfaceChecker(JSON.stringify(obj))
 }
 
+export interface IModalRequestSendAuthorMessage {
+  type: 'MRQSAM',
+  status: 'STB' | 'A' | 'D',
+  clipAuthorDiscordId: string,
+  gdClipId: string,
+}
+export function checkISendAuthorMessage (obj: any): boolean {
+  const interfaceChecker = checker('IModalRequestSendAuthorMessage', './interfaces').checkJson
+  return interfaceChecker(JSON.stringify(obj))
+}
+
+export interface IModalResponseSendAuthorMessage {
+  type: 'MRPSAM',
+  status: 'STB' | 'A' | 'D',
+  clipAuthorDiscordId: string,
+  gdClipId: string,
+}
+export function checkIModalResponseSendAuthorMessage (obj: any): boolean {
+  const interfaceChecker = checker('IModalResponseSendAuthorMessage', './interfaces').checkJson
+  return interfaceChecker(JSON.stringify(obj))
+}
+
 export interface IVideoData {
   id: string,
   provider: string,
@@ -43,7 +65,8 @@ export interface IClipData {
   clipProvider: string,
   clipId: string,
   clipDate: string,
-  clipRawUrl?: string,
+  clipDownloadUrl?: string,
+  clipDuration?: number
 }
 export function checkIClipData (obj: any): boolean {
   const interfaceChecker = checker('IClipData', './interfaces').checkJson

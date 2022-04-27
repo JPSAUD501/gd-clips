@@ -1,13 +1,14 @@
 import { interactionCustomIdSeparator, rootDbPath } from '../constants'
-import { IRequestPermission, IModPermission, IClipData, checkIClipData } from '../interfaces'
+import { IRequestPermission, IModPermission, IClipData, checkIClipData, IModalRequestSendAuthorMessage, IModalResponseSendAuthorMessage } from '../interfaces'
 import moment from 'moment'
 import fs from 'fs'
 import YAML from 'yaml'
 import path from 'path'
-
+import { Client } from 'discord.js'
+import { outplayedDownloadClip } from './clipsProviders/outplayed'
 const separator = interactionCustomIdSeparator
 
-export function newCustomId ({ ...args }: IRequestPermission | IModPermission) {
+export function newCustomId ({ ...args }: IRequestPermission | IModPermission | IModalRequestSendAuthorMessage | IModalResponseSendAuthorMessage): string {
   if (args.type === 'RP') { // Request Permission (RP)
     return `${
       args.type + separator +
@@ -28,11 +29,27 @@ export function newCustomId ({ ...args }: IRequestPermission | IModPermission) {
       args.clipId
     }`
   }
+  if (args.type === 'MRQSAM') { // Mod Permission (MP)
+    return `${
+      args.type + separator +
+      args.status + separator +
+      args.clipAuthorDiscordId + separator +
+      args.gdClipId
+    }`
+  }
+  if (args.type === 'MRPSAM') { // Mod Permission (MP)
+    return `${
+      args.type + separator +
+      args.status + separator +
+      args.clipAuthorDiscordId + separator +
+      args.gdClipId
+    }`
+  }
 
   throw new Error('Invalid type')
 }
 
-export function readCustomId (customId: string): IRequestPermission | IModPermission {
+export function readCustomId (customId: string): IRequestPermission | IModPermission | IModalRequestSendAuthorMessage | IModalResponseSendAuthorMessage {
   console.log(customId)
   const args = customId.split(separator)
   const type = args.shift()
@@ -61,6 +78,28 @@ export function readCustomId (customId: string): IRequestPermission | IModPermis
       clipAuthorDiscordId,
       clipProvider,
       clipId
+    }
+  }
+
+  if (type === 'MRQSAM') { // Modal Request Send Author Message (MRQSAM)
+    const [status, clipAuthorDiscordId, gdClipId] = args
+    if (status !== 'STB' && status !== 'A' && status !== 'D') throw new Error('Invalid status')
+    return {
+      type,
+      status,
+      clipAuthorDiscordId,
+      gdClipId
+    }
+  }
+
+  if (type === 'MRPSAM') { // Modal Response Send Author Message (MRPSAM)
+    const [status, clipAuthorDiscordId, gdClipId] = args
+    if (status !== 'STB' && status !== 'A' && status !== 'D') throw new Error('Invalid status')
+    return {
+      type,
+      status,
+      clipAuthorDiscordId,
+      gdClipId
     }
   }
 
@@ -93,14 +132,37 @@ export function saveClipData (clipData: IClipData) {
   fs.writeFileSync(clipDataPath, YAML.stringify(clipData), 'utf8')
 }
 
-export function getClipData (clipId: string): IClipData | Error {
+export function getClipData (gdClipId: string): { path: string, clipData: IClipData }[] | Error {
   const paths = getPathsRecursively(rootDbPath)
-  const videoDirPath = paths.find(path => path.endsWith(`/${clipId}`))
-  if (!videoDirPath) return new Error(`Clip dir not found: ${clipId}`)
-  const clipPath = path.join(videoDirPath, 'info.yaml')
-  if (!fs.existsSync(clipPath)) return new Error(`Clip info.yaml not found for: ${clipPath}`)
-  const clipData = fs.readFileSync(clipPath, 'utf8')
-  const clipDataObj = YAML.parse(clipData)
-  if (!checkIClipData(clipDataObj)) return new Error(`Clip info.yaml | IClipData is invalid for: ${clipPath}`)
-  return clipDataObj as IClipData
+  const videosDirPath = []
+  for (const path of paths) {
+    if (path.endsWith(`/${gdClipId}`)) {
+      videosDirPath.push(path)
+    }
+  }
+  if (videosDirPath.length === 0) return new Error(`No clip data found for: ${gdClipId}`)
+  const clipsData: {path: string, clipData: IClipData}[] = []
+  for (const videoDirPath of videosDirPath) {
+    const clipPath = path.join(videoDirPath, 'info.yaml')
+    if (!fs.existsSync(clipPath)) return new Error(`Clip info.yaml not found for: ${clipPath}`)
+    const clipData = fs.readFileSync(clipPath, 'utf8')
+    const clipDataObj = YAML.parse(clipData)
+    if (!checkIClipData(clipDataObj)) return new Error(`Clip info.yaml | IClipData is invalid for: ${clipPath}`)
+    clipsData.push({ path: videoDirPath, clipData: clipDataObj as IClipData })
+  }
+  return clipsData
+}
+
+export async function downloadClip (gdClipId: string, Client: Client): Promise<void | Error> {
+  const obtainedClipData = getClipData(gdClipId)
+  if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
+  const { clipData, path: clipDataPath } = obtainedClipData[0]
+  console.log(clipData)
+  const clipVideoSavePath = path.join(clipDataPath, 'clip.mp4')
+  if (fs.existsSync(clipVideoSavePath)) return new Error(`Clip already exists for: ${gdClipId}`)
+  if (clipData.clipProvider === 'outplayed') {
+    const outplayedDownloadedClip = await outplayedDownloadClip(clipData, clipVideoSavePath, Client)
+    if (outplayedDownloadedClip instanceof Error) return new Error(`Clip download failed for: ${gdClipId}`)
+  }
+  if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${gdClipId}`)
 }
