@@ -5,8 +5,8 @@
   "author": "JPSAUD501",
   "license": "MPL-2.0",
   "scripts": {
-    "start": "ts-node index.ts",
-    "test": "jest"
+    "start": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node index.ts",
+    "test": "xvfb-run -s '-ac -screen 0 1280x1024x24' jest"
   },
   "dependencies": {
     "@types/yaml": "^1.9.7",
@@ -20,6 +20,7 @@
     "google-auth-library": "^7.14.1",
     "googleapis": "^100.0.0",
     "moment": "^2.29.2",
+    "node-html-to-image": "^3.2.4",
     "progress": "^2.0.3",
     "ts-data-checker": "^1.2.0",
     "yaml": "^1.10.2"

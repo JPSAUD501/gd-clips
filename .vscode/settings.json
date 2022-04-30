@@ -6,6 +6,7 @@
     "MRPSAM",
     "MRQSAM",
     "playsinline",
-    "tsbuildinfo"
+    "tsbuildinfo",
+    "xvfb"
   ]
 }

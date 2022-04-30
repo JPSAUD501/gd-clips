@@ -6,11 +6,11 @@ import fs from 'fs'
 import YAML from 'yaml'
 const config = YAML.parse(fs.readFileSync('./config.yaml', 'utf8'))
 
-export async function sendModalResponseRequestSAM (interaction: ButtonInteraction, Client: Client): Promise<void> {
+export async function sendModalResponseRequestSAM (interaction: ButtonInteraction, Client: Client): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
-  if (interactionData.type !== 'MRQSAM') return
+  if (interactionData.type !== 'MRQSAM') return new Error('Invalid interaction type!')
   const clipAuthor = await Client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
-  if (!clipAuthor) return
+  if (!clipAuthor) return new Error(`Could not find discord user with id ${interactionData.clipAuthorDiscordId}`)
   const modal = new Modal() // We create a Modal
     .setCustomId(newCustomId({
       type: 'MRPSAM',
@@ -34,15 +34,14 @@ export async function sendModalResponseRequestSAM (interaction: ButtonInteractio
   })
 }
 
-export async function sendAuthorMessage (modal: ModalSubmitInteraction, Client: Client): Promise<void> {
+export async function sendAuthorMessage (modal: ModalSubmitInteraction, Client: Client): Promise<void | Error> {
   const interactionData = readCustomId(modal.customId)
-  if (interactionData.type !== 'MRPSAM') return
-  await modal.deferReply({ ephemeral: false }).catch(console.error)
+  if (interactionData.type !== 'MRPSAM') return new Error('Invalid modal type!')
   const firstResponse = modal.getTextInputValue('MESSAGE')
   const clipAuthor = await Client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
-  if (!clipAuthor) return
+  if (!clipAuthor) return new Error('Clip author not found!')
   const logChannel = Client.channels.cache.get(config['BOT-LOG-CHANNEL-ID']) as TextChannel
-  if (!logChannel) return
+  if (!logChannel) return new Error('Bot log channel not found!')
   let embed: MessageEmbed = new MessageEmbed()
     .setTitle('Notificação para o autor do clipe!')
   if (interactionData.status === 'STB') {
@@ -73,9 +72,10 @@ export async function sendAuthorMessage (modal: ModalSubmitInteraction, Client: 
   await clipAuthor.send({ embeds: [embed] }).catch(console.error)
   const msg = await modal.followUp({
     content: 'Mensagem enviada com sucesso!',
-    ephemeral: false
+    ephemeral: false,
+    fetchReply: true
   }).catch(console.error) as unknown as Message
   setTimeout(() => {
-    msg.delete().catch(console.error)
+    if (msg) msg.delete().catch(console.error)
   }, 10000)
 }

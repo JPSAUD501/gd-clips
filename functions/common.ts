@@ -4,7 +4,7 @@ import moment from 'moment'
 import fs from 'fs'
 import YAML from 'yaml'
 import path from 'path'
-import { Client } from 'discord.js'
+import { Message } from 'discord.js'
 import { outplayedDownloadClip } from './clipsProviders/outplayed'
 const separator = interactionCustomIdSeparator
 
@@ -123,7 +123,7 @@ export function getPathsRecursively (dirPath: string): string[] {
   return result
 }
 
-export function saveClipData (clipData: IClipData) {
+export function saveClipData (clipData: IClipData): void | Error {
   if (!checkIClipData(clipData)) return new Error(`IClipData is invalid for: ${clipData}`)
   const day = moment(clipData.clipDate).format('YYYY-MM-DD')
   const clipDataDir = `${rootDbPath}/${clipData.clipCategory}/${day}/${clipData.gdClipId}`
@@ -153,16 +153,16 @@ export function getClipData (gdClipId: string): { path: string, clipData: IClipD
   return clipsData
 }
 
-export async function downloadClip (gdClipId: string, Client: Client): Promise<void | Error> {
+export async function downloadClip (gdClipId: string, logMessage?: Message): Promise<void | Error> {
   const obtainedClipData = getClipData(gdClipId)
   if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
   const { clipData, path: clipDataPath } = obtainedClipData[0]
   console.log(clipData)
   const clipVideoSavePath = path.join(clipDataPath, 'clip.mp4')
-  if (fs.existsSync(clipVideoSavePath)) return new Error(`Clip already exists for: ${gdClipId}`)
+  // if (fs.existsSync(clipVideoSavePath)) return new Error(`Clip already exists for: ${gdClipId}`)
   if (clipData.clipProvider === 'outplayed') {
-    const outplayedDownloadedClip = await outplayedDownloadClip(clipData, clipVideoSavePath, Client)
-    if (outplayedDownloadedClip instanceof Error) return new Error(`Clip download failed for: ${gdClipId}`)
+    const outplayedDownloadedClip = await outplayedDownloadClip(clipData, clipVideoSavePath, logMessage)
+    if (outplayedDownloadedClip instanceof Error) return new Error(outplayedDownloadedClip.message)
   }
   if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${gdClipId}`)
 }

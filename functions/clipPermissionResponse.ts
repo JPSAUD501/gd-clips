@@ -7,19 +7,22 @@ import { getFullUrl } from './providers'
 
 const config = YAML.parse(fs.readFileSync('./config.yaml', 'utf8'))
 
-export async function clipPermissionResponse (interaction: ButtonInteraction, Client: Client) {
+export async function clipPermissionResponse (interaction: ButtonInteraction, Client: Client): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
   if (interactionData.type !== 'RP') return
   const gdClipId = interaction.message.id
 
-  if (interactionData.clipAuthorDiscordId !== interaction.user.id) return interaction.user.send('Você não é o autor do clipe e por conta disso não pode autorizar ou negar sua postagem no YouTube!').catch(console.error)
+  if (interactionData.clipAuthorDiscordId !== interaction.user.id) {
+    interaction.user.send('Você não é o autor do clipe e por conta disso não pode autorizar ou negar sua postagem no YouTube!').catch(console.error)
+    return new Error(`User ${interaction.user.id} is not the clip author of ${gdClipId}!`)
+  }
 
   if (interactionData.clipProvider !== 'outplayed') throw new Error('Unknown clip provider!')
 
   if (!(interaction.message instanceof Message)) throw new Error('Invalid interaction message!')
   await interaction.message.delete().catch(console.error)
 
-  if (interactionData.clipAuthorResponse !== 'Y') return interaction.user.send(`Olá ${interaction.user.username}, seu clipe não será postado no YouTube.`).catch(console.error)
+  if (interactionData.clipAuthorResponse !== 'Y') return
 
   const embed = new MessageEmbed()
     .setTitle(`Um novo clipe de ${interaction.user.username} aguarda aprovação!`)

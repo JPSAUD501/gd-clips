@@ -2,11 +2,13 @@ import axios from 'axios'
 import fs from 'fs'
 import { getVideoDurationInSeconds } from 'get-video-duration'
 import ProgressBar from 'progress'
-import YAML from 'yaml'
-import { Client, TextChannel } from 'discord.js'
+import { Message } from 'discord.js'
 import { getFullUrl } from '../providers'
 import { IClipData } from '../../interfaces'
-const config = YAML.parse(fs.readFileSync('./config.yaml', 'utf8'))
+const timer = {
+  start: 0,
+  lastUpdate: 0
+}
 
 const outplayedBaseUrl = 'https://outplayed.tv/media/'
 
@@ -35,15 +37,10 @@ export async function getOutplayedDownloadData (videoId: string): Promise<{ down
   }
 }
 
-export async function outplayedDownloadClip (clipData: IClipData, clipVideoSavePath: string, Client: Client): Promise<void | Error> {
+export async function outplayedDownloadClip (clipData: IClipData, clipVideoSavePath: string, logMessage?: Message): Promise<void | Error> {
   const logMessageText = (progress: string) => {
-    return `Downloading clip from outplayed: ${clipData.gdClipId} // Progress: ${progress}`
+    return `Baixando clipe do Outplayed: ${clipData.gdClipId} // Progresso: ${progress}`
   }
-  const logChannel = await Client.channels.fetch(config.logChannelId)
-  if (!logChannel) return new Error(`Log channel not found for: ${config.logChannelId}`)
-  if (!(logChannel instanceof TextChannel)) return new Error(`Log channel is not a text channel for: ${config.logChannelId}`)
-  const logMessage = await logChannel.send(logMessageText('Starting...')).catch(console.error)
-  if (!logMessage) return new Error(`Log message not sent for: ${clipData.gdClipId}`)
   if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
   const clip = await axios.get(clipData.clipDownloadUrl, { responseType: 'stream' })
   const writer = fs.createWriteStream(clipVideoSavePath)
@@ -53,23 +50,27 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
   if (isNaN(contentLength)) return new Error(`Content length is not a number for: ${clipData.gdClipId}`)
   if (contentLength <= 0) return new Error(`Content length is not greater than 0 for: ${clipData.gdClipId}`)
   const progress = new ProgressBar('downloading [:bar] :percent :etas', contentLength)
+  timer.start = Date.now()
   clip.data.on('data', async (chunk: string | any[]) => {
     progress.tick(chunk.length)
-    // TODO: TEST - await logMessage.edit(logMessageText(progress.toString()))
-    console.log(logMessageText(progress.toString()))
+    if (timer.lastUpdate + 2500 < Date.now()) {
+      timer.lastUpdate = Date.now()
+      console.log(logMessageText(`${progress.curr}/${progress.total.toString()}`))
+      if (logMessage) await logMessage.edit(logMessageText(`${progress.curr}/${progress.total.toString()}`))
+    }
   })
   const download = await new Promise((resolve, reject) => {
     clip.data.on('end', () => { resolve('success') })
     clip.data.on('error', (err: Error) => { reject(err) })
   })
   if (download instanceof Error) {
-    await logMessage.edit(logMessageText('Error ERR: 1')).catch(console.error)
+    if (logMessage) await logMessage.edit(logMessageText('Error ERR: 1')).catch(console.error)
     return new Error(`Clip download failed 1 for: ${clipData.gdClipId}`)
   }
   if (download !== 'success') {
-    await logMessage.edit(logMessageText('Error ERR: 2')).catch(console.error)
+    if (logMessage) await logMessage.edit(logMessageText('Error ERR: 2')).catch(console.error)
     return new Error(`Clip download failed 2 for: ${clipData.gdClipId}`)
   }
-  await logMessage.edit(logMessageText('Finished!')).catch(console.error)
+  if (logMessage) await logMessage.edit(logMessageText('Finished!')).catch(console.error)
   console.log(`Clip downloaded for: ${clipData.gdClipId}`)
 }

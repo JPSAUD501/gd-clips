@@ -17,9 +17,9 @@ const TOKEN = process.env.TOKEN
 if (!TOKEN) throw new Error('No token found!')
 discordLogin(TOKEN).then((Client) => {
   if (Client instanceof Error) throw new Error('Error logging in')
+
   Client.on('messageCreate', async message => {
     if (message.author.bot) return
-    console.log(message)
     if (message.channel.id !== config['CLIPS-CHANNEL-ID']) return
     console.log('New clip message!')
     newClipMessage(message)
@@ -30,16 +30,16 @@ discordLogin(TOKEN).then((Client) => {
     console.log('New interaction!')
     const interactionData = readCustomId(interaction.customId)
     console.log(interactionData)
-    if (interactionData.type === 'RP') clipPermissionResponse(interaction, Client)
-    if (interactionData.type === 'MP') clipApprovalResponse(interaction, Client)
-    if (interactionData.type === 'MRQSAM') sendModalResponseRequestSAM(interaction, Client)
+    if (interactionData.type === 'RP') clipPermissionResponse(interaction, Client).catch(console.error)
+    if (interactionData.type === 'MP') clipApprovalResponse(interaction, Client).catch(console.error)
+    if (interactionData.type === 'MRQSAM') sendModalResponseRequestSAM(interaction, Client).catch(console.error)
   })
 
   Client.on('modalSubmit', async modal => {
     console.log('New modal response!')
     const interactionData = readCustomId(modal.customId)
     console.log(interactionData)
-    if (interactionData.type === 'MRPSAM') sendAuthorMessage(modal, Client)
+    if (interactionData.type === 'MRPSAM') sendAuthorMessage(modal, Client).catch(console.error)
   })
 }).catch(err => {
   console.log(err)
