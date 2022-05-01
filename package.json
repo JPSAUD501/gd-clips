@@ -6,17 +6,16 @@
   "license": "MPL-2.0",
   "scripts": {
     "start": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node index.ts",
-    "test": "xvfb-run -s '-ac -screen 0 1280x1024x24' jest"
+    "test": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node ./tests/gd-clips.test.ts"
   },
   "dependencies": {
-    "@discordjs/rest": "^0.4.1",
-    "@types/yaml": "^1.9.7",
     "axios": "^0.26.1",
     "discord-api-types": "^0.32.0",
     "discord-modals": "^1.3.5",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "editly": "^0.11.3",
+    "ffmpeg-extract-frame": "^1.0.2",
     "fs": "^0.0.1-security",
     "get-video-duration": "^4.0.0",
     "google-auth-library": "^7.14.1",
@@ -28,7 +27,8 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "@types/jest": "^27.4.1",
+    "@discordjs/rest": "^0.4.1",
+    "@types/yaml": "^1.9.7",
     "@types/progress": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
@@ -37,8 +37,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
-    "jest": "^27.5.1",
-    "ts-jest": "^27.1.4",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
   }
