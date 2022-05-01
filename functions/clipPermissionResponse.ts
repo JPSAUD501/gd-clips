@@ -28,7 +28,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
     .setTitle(`Um novo clipe de ${interaction.user.username} aguarda aprovação!`)
     .addField('Autor:', `${interaction.user}`, true)
     .addField('Clipe:', `[Clique aqui para ver](${getFullUrl(interactionData.clipProvider, interactionData.clipId)})`, true)
-    // TODO: .setDescription(`O clipe deve atender pelo menos os itens abaixo para ser autorizado por você:\n${getRequirementsString(config['REQUIREMENTS'])}`)
+    .addField('Verifique se o clipe atende a todos os requisitos:', config['CLIP-REQUIREMENTS'].join('\n'))
     .setFooter({ text: `Novo clipe de ${interaction.user.username} no ${interactionData.clipProvider.toUpperCase()}.` })
 
   const actionRow = new MessageActionRow()

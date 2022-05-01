@@ -2,7 +2,7 @@ import axios from 'axios'
 import fs from 'fs'
 import { getVideoDurationInSeconds } from 'get-video-duration'
 import ProgressBar from 'progress'
-import { Message } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 import { getFullUrl } from '../providers'
 import { IClipData } from '../../interfaces'
 const timer = {
@@ -56,7 +56,17 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
     if (timer.lastUpdate + 2500 < Date.now()) {
       timer.lastUpdate = Date.now()
       console.log(logMessageText(`${progress.curr}/${progress.total.toString()}`))
-      if (logMessage) await logMessage.edit(logMessageText(`${progress.curr}/${progress.total.toString()}`))
+      if (logMessage) {
+        if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
+        await logMessage.edit({
+          embeds: [
+            new MessageEmbed()
+              .setTitle('Iniciando edição do clipe!')
+              .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+              .addField('Progresso:', `${progress.curr}/${progress.total.toString()}`)
+          ]
+        }).catch(console.error)
+      }
     }
   })
   const download = await new Promise((resolve, reject) => {
@@ -64,13 +74,40 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
     clip.data.on('error', (err: Error) => { reject(err) })
   })
   if (download instanceof Error) {
-    if (logMessage) await logMessage.edit(logMessageText('Error ERR: 1')).catch(console.error)
+    if (logMessage) {
+      await logMessage.edit({
+        embeds: [
+          new MessageEmbed()
+            .setTitle('Iniciando edição do clipe!')
+            .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+            .addField('Progresso:', 'Error ERR: 1')
+        ]
+      }).catch(console.error)
+    }
     return new Error(`Clip download failed 1 for: ${clipData.gdClipId}`)
   }
   if (download !== 'success') {
-    if (logMessage) await logMessage.edit(logMessageText('Error ERR: 2')).catch(console.error)
+    if (logMessage) {
+      await logMessage.edit({
+        embeds: [
+          new MessageEmbed()
+            .setTitle('Iniciando edição do clipe!')
+            .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+            .addField('Progresso:', 'Error ERR: 2')
+        ]
+      }).catch(console.error)
+    }
     return new Error(`Clip download failed 2 for: ${clipData.gdClipId}`)
   }
-  if (logMessage) await logMessage.edit(logMessageText('Finished!')).catch(console.error)
+  if (logMessage) {
+    await logMessage.edit({
+      embeds: [
+        new MessageEmbed()
+          .setTitle('Iniciando edição do clipe!')
+          .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+          .addField('Progresso:', 'Finished!')
+      ]
+    }).catch(console.error)
+  }
   console.log(`Clip downloaded for: ${clipData.gdClipId}`)
 }

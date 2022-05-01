@@ -2,13 +2,11 @@ import { maxClipTime } from '../constants'
 import { IClipData } from '../interfaces'
 import { downloadClip, getClipData, saveClipData } from './common'
 import { getDownloadData } from './providers'
-import { Client, TextChannel } from 'discord.js'
+import { Message, MessageEmbed, User } from 'discord.js'
 import { editClip } from './editClip'
-import YAML from 'yaml'
-import fs from 'fs'
-const config = YAML.parse(fs.readFileSync('./config.yaml', 'utf8'))
+import { createLowerThird } from './createLowerThird'
 
-export async function processClip (clipData: IClipData, Client: Client): Promise<void | Error> {
+export async function processClip (clipData: IClipData, logMessage: Message, authorUser: User): Promise<void | Error> {
   const save = saveClipData(clipData)
   if (save instanceof Error) return new Error(save.message)
   const downloadData = await getDownloadData(clipData.clipProvider, clipData.clipId)
@@ -26,18 +24,22 @@ export async function processClip (clipData: IClipData, Client: Client): Promise
   const latestClipDataObj = getClipData(clipData.gdClipId)
   if (latestClipDataObj instanceof Error) return new Error(latestClipDataObj.message)
   const { clipData: latestClipData } = latestClipDataObj[0]
-
-  const logChannel = Client.channels.cache.get(config['BOT-LOG-CHANNEL-ID'])
-  if (!logChannel) return new Error('Log channel not found!')
-  if (!(logChannel instanceof TextChannel)) return new Error('Log channel is not a text channel!')
-  const authorUser = await Client.users.fetch(latestClipData.clipAuthorDiscordId)
-  if (!authorUser) return new Error(`Author not found for: ${latestClipData.clipAuthorDiscordId}`)
-  const logMessage = await logChannel.send(`Baixando clipe do Outplayed: ${latestClipData.gdClipId} // Progresso: Iniciando...`).catch(console.error)
-  if (!logMessage) return new Error('Log message not found!')
+  if (!latestClipData.clipDownloadUrl) return new Error('No download url found!')
+  await logMessage.edit({
+    embeds: [
+      new MessageEmbed()
+        .setTitle('Baixando clipe do Outplayed!')
+        .addField('Clipe ID:', `[${latestClipData.gdClipId}](${latestClipData.clipDownloadUrl})`)
+        .addField('Progresso:', 'Iniciando...')
+    ]
+  }).catch(console.error)
   const downloadedClip = await downloadClip(latestClipData.gdClipId, logMessage)
   if (downloadedClip instanceof Error) return new Error(downloadedClip.message)
-  logChannel.send(`Iniciando edição do clipe: ${latestClipData.gdClipId}`)
-  const editedClip = await editClip(latestClipData.gdClipId, Client)
+  // TODO: Create Thumbnail
+  // const clipThumbnail = await createThumbnail()
+  const createdLowerThird = await createLowerThird(latestClipData.gdClipId, authorUser.username, logMessage)
+  if (createdLowerThird instanceof Error) return new Error(createdLowerThird.message)
+  const editedClip = await editClip(latestClipData.gdClipId, logMessage)
   if (editedClip instanceof Error) return new Error(editedClip.message)
-  logChannel.send(`Clipe editado com sucesso: ${latestClipData.gdClipId}`)
+  authorUser.send(`Clipe baixado e editado com sucesso!\nClipe ID: [${latestClipData.gdClipId}](${latestClipData.clipDownloadUrl})`) // TODO: Remove this when post to YouTube is done
 }

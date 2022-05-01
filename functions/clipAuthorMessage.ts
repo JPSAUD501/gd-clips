@@ -40,7 +40,9 @@ export async function sendAuthorMessage (modal: ModalSubmitInteraction, Client: 
   const firstResponse = modal.getTextInputValue('MESSAGE')
   const clipAuthor = await Client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
   if (!clipAuthor) return new Error('Clip author not found!')
-  const logChannel = Client.channels.cache.get(config['BOT-LOG-CHANNEL-ID']) as TextChannel
+  const logChannel = Client.channels.cache.get(config['BOT-LOG-CHANNEL-ID'])
+  if (!logChannel) return new Error('Log channel not found!')
+  if (!(logChannel instanceof TextChannel)) return new Error('Log channel is not a text channel!')
   if (!logChannel) return new Error('Bot log channel not found!')
   let embed: MessageEmbed = new MessageEmbed()
     .setTitle('Notificação para o autor do clipe!')

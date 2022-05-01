@@ -9,8 +9,10 @@
     "test": "xvfb-run -s '-ac -screen 0 1280x1024x24' jest"
   },
   "dependencies": {
+    "@discordjs/rest": "^0.4.1",
     "@types/yaml": "^1.9.7",
     "axios": "^0.26.1",
+    "discord-api-types": "^0.32.0",
     "discord-modals": "^1.3.5",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
