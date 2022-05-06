@@ -1,12 +1,16 @@
-import { IVideoData } from '../interfaces'
-import { getOutplayedDownloadData, getOutplayedVideoId, isOutplayedValidUrl } from './clipsProviders/outplayed'
+import { Message } from 'discord.js'
+import { IUrlData } from '../interfaces'
+import { getOutplayedDownloadData, getOutplayedVideoId, isOutplayedValidUrl, outplayedDownloadClip } from './clipsProviders/outplayed'
+import { getClipData } from './common'
+import path from 'path'
+import fs from 'fs'
 
-export function isValidUrl (message: string): boolean {
-  if (isOutplayedValidUrl(message)) return true
+export function isValidUrl (word: string): boolean {
+  if (isOutplayedValidUrl(word)) return true
   return false
 }
 
-function getVideoId (url: string): string {
+function getVideoProviderId (url: string): string {
   if (isOutplayedValidUrl(url)) return getOutplayedVideoId(url)
   throw new Error('Invalid URL')
 }
@@ -21,14 +25,14 @@ function getProviderColor (provider: string): string {
   throw new Error('Invalid provider')
 }
 
-export function getVideoData (url: string): IVideoData {
-  const videoId = getVideoId(url)
+export function getUrlData (url: string): IUrlData {
+  const videoId = getVideoProviderId(url)
   const provider = getProvider(url)
   const providerColor = getProviderColor(provider)
 
   return {
-    id: videoId,
     provider,
+    providerId: videoId,
     providerColor
   }
 }
@@ -38,11 +42,24 @@ export function getProviderBaseUrl (provider: string): string {
   throw new Error('Invalid provider')
 }
 
-export function getFullUrl (provider: string, id: string): string {
-  return `${getProviderBaseUrl(provider)}${id}`
+export function getFullUrl (provider: string, providerId: string): string {
+  return `${getProviderBaseUrl(provider)}${providerId}`
 }
 
-export function getDownloadData (provider: string, id: string): Promise<{ downloadUrl: string; videoDuration: number } | Error> {
-  if (provider === 'outplayed') return getOutplayedDownloadData(id)
+export function getDownloadData (provider: string, providerId: string): Promise<{ downloadUrl: string; videoDuration: number } | Error> {
+  if (provider === 'outplayed') return getOutplayedDownloadData(providerId)
   throw new Error('Invalid provider')
+}
+
+export async function downloadClip (gdClipId: string, logMessage?: Message): Promise<void | Error> {
+  const obtainedClipData = getClipData(gdClipId)
+  if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
+  const { clipData, path: clipDataPath } = obtainedClipData[0]
+  const clipVideoSavePath = path.join(clipDataPath, 'clip.mp4')
+  // if (fs.existsSync(clipVideoSavePath)) return new Error(`Clip already exists for: ${gdClipId}`)
+  if (clipData.clipProvider === 'outplayed') {
+    const outplayedDownloadedClip = await outplayedDownloadClip(clipData, clipVideoSavePath, logMessage)
+    if (outplayedDownloadedClip instanceof Error) return outplayedDownloadedClip
+  }
+  if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${gdClipId}`)
 }

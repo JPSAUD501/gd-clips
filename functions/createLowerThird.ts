@@ -24,13 +24,24 @@ export async function createLowerThird (gdClipId: string, authorName: string, lo
 
   const lowerThirdPath = path.join(clipDataPath, 'lowerThird.png')
   const authorNameString = authorName.substring(0, maxNameLowerThirdLength)
+  if (logMessage) {
+    if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
+    await logMessage.edit({
+      embeds: [
+        new MessageEmbed()
+          .setTitle('Criando LowerThird!')
+          .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+          .addField('Progresso:', 'Criando...')
+      ]
+    }).catch(console.error)
+  }
   const lowerThird = await HtmlToImg({
     output: lowerThirdPath,
     html: lowerThirdHtml,
     transparent: true,
     content: { name: authorNameString }
   }).catch(err => { return new Error(`Error creating lower third: ${err}`) })
-  if (lowerThird instanceof Error) return new Error(lowerThird.message)
+  if (lowerThird instanceof Error) return lowerThird
   if (!fs.existsSync(lowerThirdPath)) return new Error(`Lower third not found for: ${lowerThirdPath}`)
 
   if (logMessage) {

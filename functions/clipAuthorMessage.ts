@@ -1,15 +1,13 @@
 // Now we extract the showModal method
-import { ButtonInteraction, Client, Message, MessageEmbed, TextChannel } from 'discord.js'
+import { ButtonInteraction, Message, MessageEmbed, TextChannel } from 'discord.js'
 import { newCustomId, readCustomId } from './common'
 import { Modal, TextInputComponent, showModal, ModalSubmitInteraction } from 'discord-modals'
-import fs from 'fs'
-import YAML from 'yaml'
-const config = YAML.parse(fs.readFileSync('./config.yaml', 'utf8'))
+import { client, config } from '../constants'
 
-export async function sendModalResponseRequestSAM (interaction: ButtonInteraction, Client: Client): Promise<void | Error> {
+export async function sendModalResponseRequestSAM (interaction: ButtonInteraction): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
   if (interactionData.type !== 'MRQSAM') return new Error('Invalid interaction type!')
-  const clipAuthor = await Client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
+  const clipAuthor = await client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
   if (!clipAuthor) return new Error(`Could not find discord user with id ${interactionData.clipAuthorDiscordId}`)
   const modal = new Modal() // We create a Modal
     .setCustomId(newCustomId({
@@ -29,18 +27,18 @@ export async function sendModalResponseRequestSAM (interaction: ButtonInteractio
         .setRequired(true))
 
   showModal(modal, {
-    client: Client,
+    client: client,
     interaction: interaction
   })
 }
 
-export async function sendAuthorMessage (modal: ModalSubmitInteraction, Client: Client): Promise<void | Error> {
+export async function sendAuthorMessage (modal: ModalSubmitInteraction): Promise<void | Error> {
   const interactionData = readCustomId(modal.customId)
   if (interactionData.type !== 'MRPSAM') return new Error('Invalid modal type!')
   const firstResponse = modal.getTextInputValue('MESSAGE')
-  const clipAuthor = await Client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
+  const clipAuthor = await client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
   if (!clipAuthor) return new Error('Clip author not found!')
-  const logChannel = Client.channels.cache.get(config['BOT-LOG-CHANNEL-ID'])
+  const logChannel = client.channels.cache.get(config['BOT-LOG-CHANNEL-ID'])
   if (!logChannel) return new Error('Log channel not found!')
   if (!(logChannel instanceof TextChannel)) return new Error('Log channel is not a text channel!')
   if (!logChannel) return new Error('Bot log channel not found!')

@@ -38,6 +38,17 @@ export async function getOutplayedDownloadData (videoId: string): Promise<{ down
 }
 
 export async function outplayedDownloadClip (clipData: IClipData, clipVideoSavePath: string, logMessage?: Message): Promise<void | Error> {
+  if (logMessage) {
+    if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
+    await logMessage.edit({
+      embeds: [
+        new MessageEmbed()
+          .setTitle('Download do clipe - Outplayed!')
+          .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+          .addField('Progresso:', 'Iniciando...')
+      ]
+    }).catch(console.error)
+  }
   const logMessageText = (progress: string) => {
     return `Baixando clipe do Outplayed: ${clipData.gdClipId} // Progresso: ${progress}`
   }
@@ -61,7 +72,7 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
         await logMessage.edit({
           embeds: [
             new MessageEmbed()
-              .setTitle('Iniciando edição do clipe!')
+              .setTitle('Download do clipe - Outplayed!')
               .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
               .addField('Progresso:', `${progress.curr}/${progress.total.toString()}`)
           ]
@@ -75,10 +86,11 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
   })
   if (download instanceof Error) {
     if (logMessage) {
+      if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
       await logMessage.edit({
         embeds: [
           new MessageEmbed()
-            .setTitle('Iniciando edição do clipe!')
+            .setTitle('Download do clipe - Outplayed!')
             .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
             .addField('Progresso:', 'Error ERR: 1')
         ]
@@ -88,10 +100,11 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
   }
   if (download !== 'success') {
     if (logMessage) {
+      if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
       await logMessage.edit({
         embeds: [
           new MessageEmbed()
-            .setTitle('Iniciando edição do clipe!')
+            .setTitle('Download do clipe - Outplayed!')
             .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
             .addField('Progresso:', 'Error ERR: 2')
         ]
@@ -100,10 +113,11 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
     return new Error(`Clip download failed 2 for: ${clipData.gdClipId}`)
   }
   if (logMessage) {
+    if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Iniciando edição do clipe!')
+          .setTitle('Download do clipe - Outplayed!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Finished!')
       ]

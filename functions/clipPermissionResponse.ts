@@ -1,13 +1,10 @@
-import fs from 'fs'
-import YAML from 'yaml'
-import { MessageActionRow, MessageButton, MessageEmbed, Client, ButtonInteraction, Message, TextChannel } from 'discord.js'
-
+import { MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Message, TextChannel } from 'discord.js'
 import { newCustomId, readCustomId } from './common'
 import { getFullUrl } from './providers'
+import { getClipObject, saveClipObject } from './clipObject'
+import { client, config } from '../constants'
 
-const config = YAML.parse(fs.readFileSync('./config.yaml', 'utf8'))
-
-export async function clipPermissionResponse (interaction: ButtonInteraction, Client: Client): Promise<void | Error> {
+export async function clipPermissionResponse (interaction: ButtonInteraction): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
   if (interactionData.type !== 'RP') return
   const gdClipId = interaction.message.id
@@ -24,10 +21,18 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
 
   if (interactionData.clipAuthorResponse !== 'Y') return
 
+  const clipObject = getClipObject(getFullUrl(interactionData.clipProvider, interactionData.clipProviderId))
+  if (clipObject instanceof Error) return clipObject
+  const savedClipObject = saveClipObject({
+    ...clipObject,
+    postOnYoutubeResponse: true
+  })
+  if (savedClipObject instanceof Error) return savedClipObject
+
   const embed = new MessageEmbed()
     .setTitle(`Um novo clipe de ${interaction.user.username} aguarda aprovação!`)
     .addField('Autor:', `${interaction.user}`, true)
-    .addField('Clipe:', `[Clique aqui para ver](${getFullUrl(interactionData.clipProvider, interactionData.clipId)})`, true)
+    .addField('Clipe:', `[Clique aqui para ver](${getFullUrl(interactionData.clipProvider, interactionData.clipProviderId)})`, true)
     .addField('Verifique se o clipe atende a todos os requisitos:', config['CLIP-REQUIREMENTS'].join('\n'))
     .setFooter({ text: `Novo clipe de ${interaction.user.username} no ${interactionData.clipProvider.toUpperCase()}.` })
 
@@ -41,7 +46,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
           gdClipId: gdClipId,
           clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
           clipProvider: interactionData.clipProvider,
-          clipId: interactionData.clipId,
+          clipProviderId: interactionData.clipProviderId,
           modResponse: 'Y',
           clipCategory: 'EPIC'
         })),
@@ -53,7 +58,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
           gdClipId: gdClipId,
           clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
           clipProvider: interactionData.clipProvider,
-          clipId: interactionData.clipId,
+          clipProviderId: interactionData.clipProviderId,
           modResponse: 'Y',
           clipCategory: 'FUNNY'
         })),
@@ -65,7 +70,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
           gdClipId: gdClipId,
           clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
           clipProvider: interactionData.clipProvider,
-          clipId: interactionData.clipId,
+          clipProviderId: interactionData.clipProviderId,
           modResponse: 'N',
           clipCategory: 'TRASH'
         })),
@@ -80,7 +85,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
         }))
     )
 
-  const modChannel = Client.channels.cache.get(config['CLIPS-MODERATION-CHANNEL-ID'])
+  const modChannel = client.channels.cache.get(config['CLIPS-MODERATION-CHANNEL-ID'])
   if (!modChannel) throw new Error('Invalid moderation channel!')
   if (!(modChannel instanceof TextChannel)) throw new Error('Invalid moderation channel (No TextChannel)!')
   await modChannel.send({
@@ -89,6 +94,6 @@ export async function clipPermissionResponse (interaction: ButtonInteraction, Cl
     components: [actionRow]
   }).catch(console.error)
   await interaction.user
-    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube.\nID do clipe: ${gdClipId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipId)}`)
+    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube.\nID do clipe: ${gdClipId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipProviderId)}`)
     .catch(console.error)
 }

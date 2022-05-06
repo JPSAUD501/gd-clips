@@ -6,7 +6,8 @@
   "license": "MPL-2.0",
   "scripts": {
     "start": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node index.ts",
-    "test": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node ./tests/gd-clips.test.ts"
+    "test": "ts-node ./tests/gd-clips.test.ts",
+    "full-test": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node ./tests/gd-clips.test.ts"
   },
   "dependencies": {
     "axios": "^0.26.1",
@@ -18,9 +19,8 @@
     "ffmpeg-extract-frame": "^1.0.2",
     "fs": "^0.0.1-security",
     "get-video-duration": "^4.0.0",
-    "google-auth-library": "^7.14.1",
+    "google-auth-library": "^8.0.2",
     "googleapis": "^100.0.0",
-    "moment": "^2.29.2",
     "node-html-to-image": "^3.2.4",
     "progress": "^2.0.3",
     "ts-data-checker": "^1.2.0",
@@ -28,8 +28,8 @@
   },
   "devDependencies": {
     "@discordjs/rest": "^0.4.1",
-    "@types/yaml": "^1.9.7",
     "@types/progress": "^2.0.5",
+    "@types/yaml": "^1.9.7",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^7.32.0",

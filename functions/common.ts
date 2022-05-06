@@ -1,11 +1,8 @@
 import { interactionCustomIdSeparator, rootDbPath } from '../constants'
 import { IRequestPermission, IModPermission, IClipData, checkIClipData, IModalRequestSendAuthorMessage, IModalResponseSendAuthorMessage } from '../interfaces'
-import moment from 'moment'
 import fs from 'fs'
 import YAML from 'yaml'
 import path from 'path'
-import { Message } from 'discord.js'
-import { outplayedDownloadClip } from './clipsProviders/outplayed'
 const separator = interactionCustomIdSeparator
 
 export function newCustomId ({ ...args }: IRequestPermission | IModPermission | IModalRequestSendAuthorMessage | IModalResponseSendAuthorMessage): string {
@@ -15,7 +12,7 @@ export function newCustomId ({ ...args }: IRequestPermission | IModPermission | 
       args.clipAuthorResponse + separator +
       args.clipAuthorDiscordId + separator +
       args.clipProvider + separator +
-      args.clipId
+      args.clipProviderId
     }`
   }
   if (args.type === 'MP') { // Mod Permission (MP)
@@ -26,7 +23,7 @@ export function newCustomId ({ ...args }: IRequestPermission | IModPermission | 
       args.clipCategory + separator +
       args.clipAuthorDiscordId + separator +
       args.clipProvider + separator +
-      args.clipId
+      args.clipProviderId
     }`
   }
   if (args.type === 'MRQSAM') { // Mod Permission (MP)
@@ -50,24 +47,23 @@ export function newCustomId ({ ...args }: IRequestPermission | IModPermission | 
 }
 
 export function readCustomId (customId: string): IRequestPermission | IModPermission | IModalRequestSendAuthorMessage | IModalResponseSendAuthorMessage {
-  console.log(customId)
   const args = customId.split(separator)
   const type = args.shift()
 
   if (type === 'RP') { // Request Permission (RP)
-    const [clipAuthorResponse, clipAuthorDiscordId, clipProvider, clipId] = args
+    const [clipAuthorResponse, clipAuthorDiscordId, clipProvider, clipProviderId] = args
     if (clipAuthorResponse !== 'Y' && clipAuthorResponse !== 'N') throw new Error('Invalid response')
     return {
       type,
       clipAuthorDiscordId,
       clipAuthorResponse,
       clipProvider,
-      clipId
+      clipProviderId
     }
   }
 
   if (type === 'MP') { // Mod Permission (MP)
-    const [gdClipId, modResponse, clipCategory, clipAuthorDiscordId, clipProvider, clipId] = args
+    const [gdClipId, modResponse, clipCategory, clipAuthorDiscordId, clipProvider, clipProviderId] = args
     if (modResponse !== 'Y' && modResponse !== 'N') throw new Error('Invalid response')
     if (clipCategory !== 'FUNNY' && clipCategory !== 'EPIC' && clipCategory !== 'TRASH') throw new Error('Invalid category')
     return {
@@ -77,7 +73,7 @@ export function readCustomId (customId: string): IRequestPermission | IModPermis
       clipCategory,
       clipAuthorDiscordId,
       clipProvider,
-      clipId
+      clipProviderId
     }
   }
 
@@ -125,11 +121,22 @@ export function getPathsRecursively (dirPath: string): string[] {
 
 export function saveClipData (clipData: IClipData): void | Error {
   if (!checkIClipData(clipData)) return new Error(`IClipData is invalid for: ${clipData}`)
-  const day = moment(clipData.clipDate).format('YYYY-MM-DD')
-  const clipDataDir = `${rootDbPath}/${clipData.clipCategory}/${day}/${clipData.gdClipId}`
+  const clipDataDir = `${rootDbPath}/${clipData.clipCategory}/${clipData.gdClipId}`
   if (!fs.existsSync(`./${clipDataDir}`)) fs.mkdirSync(`./${clipDataDir}`, { recursive: true })
-  const clipDataPath = `${rootDbPath}/${clipData.clipCategory}/${day}/${clipData.gdClipId}/info.yaml`
+  const clipDataPath = `${rootDbPath}/${clipData.clipCategory}/${clipData.gdClipId}/info.yaml`
   fs.writeFileSync(clipDataPath, YAML.stringify(clipData), 'utf8')
+}
+
+export function updateClipData (gdClipId: string, { ...options }): void | Error {
+  const clipDataObj = getClipData(gdClipId)
+  if (clipDataObj instanceof Error) return clipDataObj
+  const { clipData } = clipDataObj[0]
+  const newClipData = { ...clipData, ...options }
+  if (!checkIClipData(newClipData)) return new Error(`IClipData is invalid for: ${clipData}`)
+  const clipDataDir = `${rootDbPath}/${clipData.clipCategory}/${clipData.gdClipId}`
+  if (!fs.existsSync(`./${clipDataDir}`)) fs.mkdirSync(`./${clipDataDir}`, { recursive: true })
+  const clipDataPath = `${rootDbPath}/${clipData.clipCategory}/${clipData.gdClipId}/info.yaml`
+  fs.writeFileSync(clipDataPath, YAML.stringify(newClipData), 'utf8')
 }
 
 export function getClipData (gdClipId: string): { path: string, clipData: IClipData }[] | Error {
@@ -146,23 +153,9 @@ export function getClipData (gdClipId: string): { path: string, clipData: IClipD
     const clipPath = path.join(videoDirPath, 'info.yaml')
     if (!fs.existsSync(clipPath)) return new Error(`Clip info.yaml not found for: ${clipPath}`)
     const clipData = fs.readFileSync(clipPath, 'utf8')
-    const clipDataObj = YAML.parse(clipData)
+    const clipDataObj = YAML.parse(clipData) as IClipData
     if (!checkIClipData(clipDataObj)) return new Error(`Clip info.yaml | IClipData is invalid for: ${clipPath}`)
     clipsData.push({ path: videoDirPath, clipData: clipDataObj as IClipData })
   }
   return clipsData
-}
-
-export async function downloadClip (gdClipId: string, logMessage?: Message): Promise<void | Error> {
-  const obtainedClipData = getClipData(gdClipId)
-  if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
-  const { clipData, path: clipDataPath } = obtainedClipData[0]
-  console.log(clipData)
-  const clipVideoSavePath = path.join(clipDataPath, 'clip.mp4')
-  // if (fs.existsSync(clipVideoSavePath)) return new Error(`Clip already exists for: ${gdClipId}`)
-  if (clipData.clipProvider === 'outplayed') {
-    const outplayedDownloadedClip = await outplayedDownloadClip(clipData, clipVideoSavePath, logMessage)
-    if (outplayedDownloadedClip instanceof Error) return new Error(outplayedDownloadedClip.message)
-  }
-  if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${gdClipId}`)
 }

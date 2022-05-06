@@ -2,12 +2,25 @@ GUILD-ID: "720275637415182416" # Discord Guild ID
 CLIPS-CHANNEL-ID: "960323465271984148" # Channel ID for the clips channel
 CLIPS-MODERATION-CHANNEL-ID: "960454690968072192" # Channel ID for the clips moderation channel
 BOT-LOG-CHANNEL-ID: "919484652736094218" # Channel ID for the bot log channel
+GUILD-OWNER-QUESTION-CHANNEL-ID: "971676873245470751" # Channel ID for the guild owner question channel (Like Oauth token question)
 MODERATION-ROLE-ID: "854548174458454036" # Role ID for the clips moderation role
 OWNER-ID: "141957307591426050" # Guild owner Discord ID
 MAX-CLIP-TIME: 120 # Maximum clip length in seconds
+MAX-SIMULTANEOUS-CLIPS-PROCESSING: 1 # Maximum simultaneous clips processing
+MAX-TIME-TO-OPT-TO-POST-ON-YT: 180 # Maximum time to opt to post on YouTube in seconds
 CLIP-REQUIREMENTS: # Requirements for clips to be accepted
-  - A duração deve ser menor que 2 minutos.
-  - Não pode violar as diretrizes da comunidade do YouTube.
-  - Não pode violar as regras do Valorant.
-  - Não pode violar as regras do Grupo Disparate.
-  - O clipe deve ser do membro que o enviou.
+  - -> A duração deve ser menor que 2 minutos.
+  - -> Não pode violar as diretrizes da comunidade do YouTube.
+  - -> Não pode violar as regras do Valorant.
+  - -> Não pode violar as regras do Grupo Disparate.
+  - -> O clipe deve ser do membro que o enviou.
+  - -> O clipe deve ser sobre o jogo eletrônico Valorant da Riot Games
+
+DEFAULT-DESCRIPTION: # Default description for clips
+  'Clipe de um membro do Grupo Disparate.
+  Editado e postado por GD-CLIPS de forma automática!
+  Contato: gd.grupodisparate@gmail.com'
+
+DEFAULT-TAGS: # Default tags for clips
+  - Valorant
+  - Riot Games

@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "camelcase",
     "codepaths",
     "discordjs",
     "editly",
@@ -9,6 +10,7 @@
     "playsinline",
     "tsbuildinfo",
     "Valorant",
-    "xvfb"
+    "xvfb",
+    "youtube"
   ]
 }

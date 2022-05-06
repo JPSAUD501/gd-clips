@@ -25,12 +25,22 @@ export async function createThumbnail (gdClipId: string, authorName: string, log
   const clipVideoPath = path.join(clipDataPath, 'clip.mp4')
   const previewImgPath = path.join(clipDataPath, 'preview.png')
   if (!clipData.clipDuration) return new Error(`Clip duration not found for: ${clipData.gdClipId}`)
+  if (logMessage) {
+    if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
+    await logMessage.edit({
+      embeds: [
+        new MessageEmbed()
+          .setTitle('Criando Thumbnail!')
+          .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+          .addField('Progresso:', 'Criando...')
+      ]
+    }).catch(console.error)
+  }
   await extractFrame({
     input: clipVideoPath,
     output: previewImgPath,
     offset: Math.floor(clipData.clipDuration * 1000) / 2
   })
-  console.log(previewImgPath)
   if (!fs.existsSync(previewImgPath)) return new Error(`Preview image not found for: ${previewImgPath}`)
   const thumbnailPath = path.join(clipDataPath, 'thumbnail.png')
   const authorNameString = authorName.substring(0, maxNameThumbnailLength)
@@ -45,7 +55,7 @@ export async function createThumbnail (gdClipId: string, authorName: string, log
     transparent: false,
     content: { name: authorNameString, previewImg: previewDataImgURI }
   }).catch(err => { return new Error(`Error creating thumbnail: ${err}`) })
-  if (thumbnail instanceof Error) return new Error(thumbnail.message)
+  if (thumbnail instanceof Error) return thumbnail
   if (!fs.existsSync(thumbnailPath)) return new Error(`Thumbnail not found for: ${thumbnail}`)
 
   if (logMessage) {
@@ -53,7 +63,7 @@ export async function createThumbnail (gdClipId: string, authorName: string, log
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Criando Thumbnail!')
+          .setTitle('Thumbnail criada!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Finalizado!')
       ]

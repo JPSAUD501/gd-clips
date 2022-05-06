@@ -40,11 +40,33 @@ export async function editClip (gdClipId: string, logMessage?: Message): Promise
     fps: 60
   }
 
+  const editStart = Date.now()
+  if (!clipData.clipDuration) return new Error(`Clip duration not found for: ${clipData.gdClipId}`)
+  const estimatedTime = 128.77 * clipData.clipDuration * 1000
+
+  const progressLogMessage = setInterval(async () => {
+    if (logMessage) {
+      if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
+      await logMessage.edit({
+        embeds: [
+          new MessageEmbed()
+            .setTitle('Editando clipe!')
+            .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
+            .addField('Inicio:', `${new Date(editStart).toLocaleString()}`)
+            .addField('Previsão de término:', `${(new Date(editStart + estimatedTime).toLocaleString())}`)
+            .addField('Progresso estimado:', `${Math.round(((Date.now() - editStart) / estimatedTime) * 100)}%`)
+            .addField('Progresso:', 'Editando...')
+        ]
+      }).catch(console.error)
+    }
+  }, 5000)
   const editedClip = await editly(editSpec).catch(err => {
     console.error(err)
     return new Error(`Editly failed for: ${gdClipId}`)
   })
-  if (editedClip instanceof Error) return new Error(editedClip.message)
+  clearInterval(progressLogMessage)
+
+  if (editedClip instanceof Error) return editedClip
   if (!fs.existsSync(editSpec.outPath)) return new Error(`Edited clip not found for: ${editSpec.outPath}`)
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
@@ -53,7 +75,7 @@ export async function editClip (gdClipId: string, logMessage?: Message): Promise
         new MessageEmbed()
           .setTitle('Clipe editado com sucesso!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
-          .addField('Progresso:', 'Finalizado')
+          .addField('Progresso:', 'Finalizado!')
       ]
     }).catch(console.error)
   }

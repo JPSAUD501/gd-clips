@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+import { Message, User } from 'discord.js'
 import { checker } from 'ts-data-checker'
 
 export interface IRequestPermission {
@@ -5,7 +7,7 @@ export interface IRequestPermission {
   clipAuthorDiscordId: string,
   clipAuthorResponse: 'Y' | 'N',
   clipProvider: string,
-  clipId: string,
+  clipProviderId: string,
 }
 export function checkIRequestPermission (obj: any): boolean {
   const interfaceChecker = checker('IRequestPermission', './interfaces').checkJson
@@ -19,7 +21,7 @@ export interface IModPermission {
   clipCategory: 'FUNNY' | 'EPIC' | 'TRASH',
   clipAuthorDiscordId: string,
   clipProvider: string,
-  clipId: string,
+  clipProviderId: string,
 }
 export function checkIModPermission (obj: any): boolean {
   const interfaceChecker = checker('IModPermission', './interfaces').checkJson
@@ -48,13 +50,13 @@ export function checkIModalResponseSendAuthorMessage (obj: any): boolean {
   return interfaceChecker(JSON.stringify(obj))
 }
 
-export interface IVideoData {
-  id: string,
+export interface IUrlData {
   provider: string,
-  providerColor: string,
+  providerId: string,
+  providerColor: string
 }
-export function checkIVideoData (obj: any): boolean {
-  const interfaceChecker = checker('IVideoData', './interfaces').checkJson
+export function checkIUrlData (obj: any): boolean {
+  const interfaceChecker = checker('IUrlData', './interfaces').checkJson
   return interfaceChecker(JSON.stringify(obj))
 }
 
@@ -63,12 +65,58 @@ export interface IClipData {
   clipCategory: 'FUNNY' | 'EPIC' | 'TRASH',
   clipAuthorDiscordId: string,
   clipProvider: string,
-  clipId: string,
+  clipProviderId: string,
   clipDate: string,
   clipDownloadUrl?: string,
-  clipDuration?: number
+  clipDuration?: number,
+  downloadTime?: number,
+  editTime?: number
 }
 export function checkIClipData (obj: any): boolean {
   const interfaceChecker = checker('IClipData', './interfaces').checkJson
+  return interfaceChecker(JSON.stringify(obj))
+}
+
+export interface IQueueObject {
+  gdClipId: string,
+  authorUser?: User,
+  authorName?: string,
+  logMessage?: Message
+}
+export function checkIQueueObject (obj: any): boolean {
+  const interfaceChecker = checker('IQueueObject', './interfaces').checkJson
+  return interfaceChecker(JSON.stringify(obj))
+}
+
+export interface IClipObject {
+  objectId: string,
+  provider: string,
+  providerId: string,
+  authorDiscordId: string,
+  firstApearDate: string,
+  firstApearChannelId: string,
+  postedOnClipsChannel?: boolean,
+  clipsChannelPostDate?: string,
+  postOnYoutubeResponse?: boolean,
+  youtubePostDate?: string
+}
+export function checkIClipObject (obj: any): boolean {
+  const interfaceChecker = checker('IClipObject', './interfaces').checkJson
+  return interfaceChecker(JSON.stringify(obj))
+}
+
+export interface IClientSecret {
+  installed: {
+    client_id: string,
+    project_id: string,
+    auth_uri: string,
+    token_uri: string,
+    auth_provider_x509_cert_url: string,
+    client_secret: string,
+    redirect_uris: string[]
+  }
+}
+export function checkIClientSecret (obj: any): boolean {
+  const interfaceChecker = checker('IClientSecret', './interfaces').checkJson
   return interfaceChecker(JSON.stringify(obj))
 }

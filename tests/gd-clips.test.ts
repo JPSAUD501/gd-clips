@@ -1,7 +1,9 @@
-import { createThumbnail } from '../functions/createThumbnail'
+import { discordLogin } from '../functions/discordLogin'
+import { uploadToYT } from '../functions/uploadToYTClip'
 
-function test () {
-  const createdThumbnail = createThumbnail('969841601029480498', 'Erol')
-  if (createdThumbnail instanceof Error) return new Error(createdThumbnail.message)
+async function test () {
+  await discordLogin()
+  const response = await uploadToYT('971249512528117780', 'JPSAUD501')
+  console.log(response)
 }
 test()
