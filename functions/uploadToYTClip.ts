@@ -6,7 +6,7 @@ import path from 'path'
 import { getClipData } from './common'
 import { config } from '../constants'
 
-export async function uploadToYT (gdClipId: string, authorName: string, logMessage?: Message): Promise<string | Error> {
+export async function uploadToYTClip (gdClipId: string, authorName: string, logMessage?: Message): Promise<string | Error> {
   const obtainedClipData = getClipData(gdClipId)
   if (obtainedClipData instanceof Error) return obtainedClipData
   const { clipData, path: clipDataPath } = obtainedClipData[0]
@@ -18,18 +18,19 @@ export async function uploadToYT (gdClipId: string, authorName: string, logMessa
           .setTitle('Iniciando envio ao YouTube do clipe!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Iniciando...')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
   const clipVideoPath = path.join(clipDataPath, 'clipEdited.mp4')
   const clipThumbnailPath = path.join(clipDataPath, 'thumbnail.png')
-  if (!fs.readFileSync(clipVideoPath)) return new Error(`Clip not found for: ${gdClipId}`)
+  if (!fs.readFileSync(clipVideoPath)) return new Error(`Clip edited YT not found for: ${gdClipId}`)
   if (!fs.readFileSync(clipThumbnailPath)) return new Error(`Clip thumbnail not found for: ${gdClipId}`)
-  const videoTitle = `${authorName} - ${clipData.clipCategory}`
-  const videoDescription: string = config['DEFAULT-DESCRIPTION']
-  if (!videoDescription) return new Error('Default description not found')
-  const videoTags: string[] = config['DEFAULT-TAGS']
-  if (!videoTags) return new Error('Default tags not found')
+  const clipTitle = `${authorName} - ${clipData.clipCategory}`
+  const clipDescription: string = config['YT-CLIP-DESCRIPTION']
+  if (!clipDescription) return new Error('Default description not found')
+  const clipTags: string[] = config['DEFAULT-TAGS']
+  if (!clipTags) return new Error('Default tags not found')
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
@@ -38,6 +39,7 @@ export async function uploadToYT (gdClipId: string, authorName: string, logMessa
           .setTitle('Iniciando envio ao YouTube do clipe!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Aguardando autenticação...')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
@@ -52,6 +54,7 @@ export async function uploadToYT (gdClipId: string, authorName: string, logMessa
           .setTitle('Iniciando envio ao YouTube do clipe!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Fazendo upload...')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
@@ -60,9 +63,9 @@ export async function uploadToYT (gdClipId: string, authorName: string, logMessa
     part: ['snippet,status'],
     requestBody: {
       snippet: {
-        title: videoTitle,
-        description: videoDescription,
-        tags: videoTags,
+        title: clipTitle,
+        description: clipDescription,
+        tags: clipTags,
         // TODO: categoryId: // Solo clip YT category ID,
         defaultLanguage: 'pt-BR',
         defaultAudioLanguage: 'pt-BR'
@@ -82,7 +85,7 @@ export async function uploadToYT (gdClipId: string, authorName: string, logMessa
 
   const ytVideoId = uploadedVideo.data.id
   if (!ytVideoId) return new Error('Error uploading video, no video ID')
-  const videoLink = `https://www.youtube.com/watch?v=${ytVideoId}`
+  const clipLink = `https://www.youtube.com/watch?v=${ytVideoId}`
 
   const setThumbnail = await service.thumbnails.set({
     auth: auth,
@@ -99,10 +102,11 @@ export async function uploadToYT (gdClipId: string, authorName: string, logMessa
         new MessageEmbed()
           .setTitle('Iniciando envio ao YouTube do clipe!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
-          .addField('Link do clipe:', videoLink)
+          .addField('Link do clipe:', clipLink)
           .addField('Progresso:', 'Enviado!')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
-  return videoLink
+  return clipLink
 }

@@ -4,7 +4,7 @@ import path from 'path'
 import { getClipData } from './common'
 import { Message, MessageEmbed } from 'discord.js'
 
-export async function editClip (gdClipId: string, logMessage?: Message): Promise<void | Error> {
+export async function editClipIG (gdClipId: string, logMessage?: Message): Promise<void | Error> {
   const obtainedClipData = getClipData(gdClipId)
   if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
   const { clipData, path: clipDataPath } = obtainedClipData[0]
@@ -13,30 +13,31 @@ export async function editClip (gdClipId: string, logMessage?: Message): Promise
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Iniciando edição do clipe!')
+          .setTitle('Iniciando edição do clipe IG!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Iniciando...')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
   const clipVideoPath = path.join(clipDataPath, 'clip.mp4')
   if (!fs.existsSync(clipVideoPath)) return new Error(`Clip video not found for: ${clipVideoPath}`)
-  const lowerThirdPath = path.join(clipDataPath, 'lowerThird.png')
-  if (!fs.existsSync(lowerThirdPath)) return new Error(`Lower third not found for: ${lowerThirdPath}`)
+  const lowerThirdIGPath = path.join(clipDataPath, 'lowerThirdIG.png')
+  if (!fs.existsSync(lowerThirdIGPath)) return new Error(`Lower third not found for: ${lowerThirdIGPath}`)
 
   const editSpec: Config = {
-    outPath: path.join(clipDataPath, 'clipEdited.mp4'),
+    outPath: path.join(clipDataPath, 'clipEditedIG.mp4'),
     clips: [
       {
         layers: [
-          { type: 'video', path: clipVideoPath },
-          { type: 'image-overlay', path: lowerThirdPath }
+          { type: 'video', path: clipVideoPath, resizeMode: 'cover' },
+          { type: 'image-overlay', path: lowerThirdIGPath }
         ]
       }
     ],
     keepSourceAudio: true,
-    width: 1920,
-    height: 1080,
+    width: 1300,
+    height: 1300,
     fps: 60
   }
 
@@ -50,12 +51,14 @@ export async function editClip (gdClipId: string, logMessage?: Message): Promise
       await logMessage.edit({
         embeds: [
           new MessageEmbed()
-            .setTitle('Editando clipe!')
+            .setTitle('Editando clipe IG!')
             .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
             .addField('Inicio:', `${new Date(editStart).toLocaleString()}`)
             .addField('Previsão de término:', `${(new Date(editStart + estimatedTime).toLocaleString())}`)
             .addField('Progresso estimado:', `${Math.round(((Date.now() - editStart) / estimatedTime) * 100)}%`)
+            .addField('Informações:', 'É possível que o progresso estimado passe de 100% quando a previsão de término for atingida.')
             .addField('Progresso:', 'Editando...')
+            .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
         ]
       }).catch(console.error)
     }
@@ -73,9 +76,10 @@ export async function editClip (gdClipId: string, logMessage?: Message): Promise
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Clipe editado com sucesso!')
+          .setTitle('Clipe IG editado com sucesso!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Finalizado!')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }

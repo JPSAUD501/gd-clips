@@ -8,9 +8,11 @@ import { startQueueProcessing } from './functions/clipProcessQueue'
 import { isValidUrl } from './functions/providers'
 import { getClipObjectOrCreateOne } from './functions/clipObject'
 import { client, config } from './constants'
+import { instagramLogin } from './functions/instagramLogin'
 
 async function startBot () {
   await discordLogin()
+  await instagramLogin()
   startQueueProcessing()
 
   client.on('messageCreate', async message => {

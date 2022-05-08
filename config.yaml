@@ -16,10 +16,13 @@ CLIP-REQUIREMENTS: # Requirements for clips to be accepted
   - -> O clipe deve ser do membro que o enviou.
   - -> O clipe deve ser sobre o jogo eletrônico Valorant da Riot Games
 
-DEFAULT-DESCRIPTION: # Default description for clips
+YT-CLIP-DESCRIPTION: # Default description for clips on YT
   'Clipe de um membro do Grupo Disparate.
   Editado e postado por GD-CLIPS de forma automática!
   Contato: gd.grupodisparate@gmail.com'
+
+IG-CLIP-DESCRIPTION: # Default description for clips on IG
+  Clipe de um membro do Grupo Disparate - Editado por GD-CLIPS
 
 DEFAULT-TAGS: # Default tags for clips
   - Valorant

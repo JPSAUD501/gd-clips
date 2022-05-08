@@ -1,7 +1,7 @@
 import { MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Message, TextChannel } from 'discord.js'
 import { newCustomId, readCustomId } from './common'
 import { getFullUrl } from './providers'
-import { getClipObject, saveClipObject } from './clipObject'
+import { updateClipObject } from './clipObject'
 import { client, config } from '../constants'
 
 export async function clipPermissionResponse (interaction: ButtonInteraction): Promise<void | Error> {
@@ -21,11 +21,8 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
 
   if (interactionData.clipAuthorResponse !== 'Y') return
 
-  const clipObject = getClipObject(getFullUrl(interactionData.clipProvider, interactionData.clipProviderId))
-  if (clipObject instanceof Error) return clipObject
-  const savedClipObject = saveClipObject({
-    ...clipObject,
-    postOnYoutubeResponse: true
+  const savedClipObject = updateClipObject(getFullUrl(interactionData.clipProvider, interactionData.clipProviderId), {
+    postOnInternetResponse: true
   })
   if (savedClipObject instanceof Error) return savedClipObject
 
@@ -94,6 +91,6 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
     components: [actionRow]
   }).catch(console.error)
   await interaction.user
-    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube.\nID do clipe: ${gdClipId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipProviderId)}`)
+    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube e Instagram.\nID do clipe: ${gdClipId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipProviderId)}`)
     .catch(console.error)
 }

@@ -1,8 +1,9 @@
-import { interactionCustomIdSeparator, rootDbPath } from '../constants'
+import { config, interactionCustomIdSeparator, rootDbPath } from '../constants'
 import { IRequestPermission, IModPermission, IClipData, checkIClipData, IModalRequestSendAuthorMessage, IModalResponseSendAuthorMessage } from '../interfaces'
 import fs from 'fs'
 import YAML from 'yaml'
 import path from 'path'
+import { getDownloadData } from './providers'
 const separator = interactionCustomIdSeparator
 
 export function newCustomId ({ ...args }: IRequestPermission | IModPermission | IModalRequestSendAuthorMessage | IModalResponseSendAuthorMessage): string {
@@ -158,4 +159,30 @@ export function getClipData (gdClipId: string): { path: string, clipData: IClipD
     clipsData.push({ path: videoDirPath, clipData: clipDataObj as IClipData })
   }
   return clipsData
+}
+
+export async function saveDownloadData (gdClipId: string): Promise<void | Error> {
+  const obtainedClipData = getClipData(gdClipId)
+  if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
+  const { clipData } = obtainedClipData[0]
+  const downloadData = await getDownloadData(clipData.clipProvider, clipData.clipProviderId)
+  if (downloadData instanceof Error) return downloadData
+  const { downloadUrl, videoDuration } = downloadData
+  const saveDownloadData1 = updateClipData(clipData.gdClipId, {
+    clipDownloadUrl: downloadUrl,
+    clipDuration: videoDuration
+  })
+  if (saveDownloadData1 instanceof Error) return saveDownloadData1
+}
+
+export function checkMaxClipTime (gdClipId: string): void | Error {
+  const obtainedClipData = getClipData(gdClipId)
+  if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
+  const { clipData } = obtainedClipData[0]
+  if (!clipData.clipDuration) return new Error('Clip duration not found!')
+  if (clipData.clipDuration === 0) return new Error('Invalid video duration!')
+  const maxClipTime: number = config['MAX-CLIP-TIME']
+  if (!maxClipTime) return new Error('MAX-CLIP-TIME not found in config.yaml')
+  if (maxClipTime < 1) return new Error('MAX-CLIP-TIME must be greater or equal to 1!')
+  if (clipData.clipDuration >= maxClipTime) return new Error(`Video duration is too long! Max: ${maxClipTime}`)
 }

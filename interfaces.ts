@@ -69,8 +69,7 @@ export interface IClipData {
   clipDate: string,
   clipDownloadUrl?: string,
   clipDuration?: number,
-  downloadTime?: number,
-  editTime?: number
+  downloadTime?: number
 }
 export function checkIClipData (obj: any): boolean {
   const interfaceChecker = checker('IClipData', './interfaces').checkJson
@@ -97,8 +96,9 @@ export interface IClipObject {
   firstApearChannelId: string,
   postedOnClipsChannel?: boolean,
   clipsChannelPostDate?: string,
-  postOnYoutubeResponse?: boolean,
-  youtubePostDate?: string
+  postOnInternetResponse?: boolean,
+  youtubePostDate?: string,
+  instagramPostData?: string
 }
 export function checkIClipObject (obj: any): boolean {
   const interfaceChecker = checker('IClipObject', './interfaces').checkJson

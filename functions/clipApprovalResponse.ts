@@ -1,6 +1,6 @@
 
 import { newCustomId, readCustomId, saveClipData } from './common'
-import { ButtonInteraction, Message, MessageEmbed, MessageButton, MessageActionRow } from 'discord.js'
+import { ButtonInteraction, Message, MessageEmbed, MessageButton, MessageActionRow, TextChannel } from 'discord.js'
 import { getFullUrl } from './providers'
 import { IClipData } from '../interfaces'
 import { addToQueue } from './clipProcessQueue'
@@ -76,11 +76,21 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
     components: [actionRow]
   }).catch(console.error)
 
-  await logMessage.edit({
+  const interactionChannel = interaction.message.channel
+  if (!(interactionChannel instanceof TextChannel)) return new Error('Invalid interaction channel!')
+  const approvalMessage = interactionChannel.send({
     embeds: [
       new MessageEmbed()
         .setTitle(`O clipe de ${clipAuthor.username} foi autorizado com sucesso por "${interaction.user.username}"!`)
+        .addField('CLipe ID:', `${interactionData.gdClipId}`, true)
         .setDescription('Ok! Iniciando processamento do clipe...')
+    ]
+  }).catch(console.error)
+  if (!approvalMessage) return new Error('Could not reply to message!')
+  await logMessage.edit({
+    embeds: [
+      new MessageEmbed()
+        .setTitle('Carregando...')
     ]
   }).catch(console.error)
 

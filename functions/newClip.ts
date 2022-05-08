@@ -18,7 +18,7 @@ export async function newClip (message: Message, url: string): Promise<void> {
   if (clipObject.postedOnClipsChannel) {
     const embedAlreadyPosted = new MessageEmbed()
       .setTitle('Este clipe já foi postado nesse canal de clipes!')
-      .setDescription('Sua mensagem sera apagada por conta disso mas você ainda pode optar por enviar esse video para o YouTube respondendo a pergunta acima caso ainda não tenha optado por isso.')
+      .setDescription('Sua mensagem sera apagada por conta disso mas você ainda pode optar por enviar esse video para o Instagram e YouTube respondendo a pergunta acima caso ainda não tenha optado por isso.')
     const msgReplyAlreadyPosted = await message.reply({ embeds: [embedAlreadyPosted] }).catch(console.error)
     if (!msgReplyAlreadyPosted) return console.error(`Could not send message reply to ${message.author.username} in clips channel.`)
     setTimeout(() => {
@@ -35,21 +35,21 @@ export async function newClip (message: Message, url: string): Promise<void> {
   })
   if (savedClipObject instanceof Error) return console.error(savedClipObject.message)
 
-  const alreadyOptedToPostOnYoutubeReply = async () => {
-    const embedAlreadyOptedToPostOnYoutube = new MessageEmbed()
-      .setTitle('Você já optou por postar esse clipe no YouTube!')
-    await msgReply.edit({ embeds: [embedAlreadyOptedToPostOnYoutube] }).catch(console.error)
+  const alreadyOptedToPostOnInternetReply = async () => {
+    const embedAlreadyOptedToPostOnInternet = new MessageEmbed()
+      .setTitle('Você já optou por postar esse clipe no YouTube e Instagram!')
+    await msgReply.edit({ embeds: [embedAlreadyOptedToPostOnInternet] }).catch(console.error)
     setTimeout(() => {
       msgReply.delete().catch()
     }, config['MAX-TIME-TO-OPT-TO-POST-ON-YT'] * 1000)
   }
-  if (clipObject.postOnYoutubeResponse === true) return alreadyOptedToPostOnYoutubeReply()
+  if (clipObject.postOnInternetResponse === true) return alreadyOptedToPostOnInternetReply()
 
   const urlData = getUrlData(url)
 
   const embedReply = new MessageEmbed()
     .setColor(`${urlData.providerColor}` as ColorResolvable)
-    .setTitle(`${message.author.username} você deseja que esse seu clipe apareça no canal do YouTube do Grupo Disparate?`)
+    .setTitle(`${message.author.username} você deseja que esse seu clipe apareça no Instagram e canal do YouTube do Grupo Disparate?`)
     .addField('Autor:', `${message.author}`, true)
     .addField('Clipe:', `[Clique aqui para ver](${getProviderBaseUrl(urlData.provider)}${urlData.providerId})`, true)
     .setFooter({ text: `Novo clipe de ${message.author.username} no ${urlData.provider.toUpperCase()}.` })

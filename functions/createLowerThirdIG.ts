@@ -1,13 +1,12 @@
-import { maxNameThumbnailLength } from '../constants'
+import { maxNameLowerThirdLength } from '../constants'
 import { getClipData } from './common'
 import path from 'path'
 import fs from 'fs'
 import HtmlToImg from 'node-html-to-image'
 import { Message, MessageEmbed } from 'discord.js'
-const extractFrame = require('ffmpeg-extract-frame')
-const thumbnailHtml = fs.readFileSync('./media/thumbnail.html', 'utf8')
+const lowerThirdIGHtml = fs.readFileSync('./media/lowerThirdIG.html', 'utf8')
 
-export async function createThumbnail (gdClipId: string, authorName: string, logMessage?: Message): Promise<void | Error> {
+export async function createLowerThirdIG (gdClipId: string, authorName: string, logMessage?: Message): Promise<void | Error> {
   const obtainedClipData = getClipData(gdClipId)
   if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
   const { clipData, path: clipDataPath } = obtainedClipData[0]
@@ -16,56 +15,43 @@ export async function createThumbnail (gdClipId: string, authorName: string, log
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Criando Thumbnail!')
+          .setTitle('Criando LowerThird IG!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Iniciando...')
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
-  const clipVideoPath = path.join(clipDataPath, 'clip.mp4')
-  const previewImgPath = path.join(clipDataPath, 'preview.png')
-  if (!clipData.clipDuration) return new Error(`Clip duration not found for: ${clipData.gdClipId}`)
+
+  const lowerThirdIGPath = path.join(clipDataPath, 'lowerThirdIG.png')
+  const authorNameString = authorName.substring(0, maxNameLowerThirdLength)
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Criando Thumbnail!')
+          .setTitle('Criando LowerThird IG!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Criando...')
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
-  await extractFrame({
-    input: clipVideoPath,
-    output: previewImgPath,
-    offset: Math.floor(clipData.clipDuration * 1000) / 2
-  })
-  if (!fs.existsSync(previewImgPath)) return new Error(`Preview image not found for: ${previewImgPath}`)
-  const thumbnailPath = path.join(clipDataPath, 'thumbnail.png')
-  const authorNameString = authorName.substring(0, maxNameThumbnailLength)
-
-  const previewImg = fs.readFileSync(previewImgPath)
-  const base64PreviewImg = previewImg.toString('base64')
-  const previewDataImgURI = 'data:image/png;base64,' + base64PreviewImg
-
-  const thumbnail = await HtmlToImg({
-    output: thumbnailPath,
-    html: thumbnailHtml,
-    transparent: false,
-    content: { name: authorNameString, previewImg: previewDataImgURI }
-  }).catch(err => { return new Error(`Error creating thumbnail: ${err}`) })
-  if (thumbnail instanceof Error) return thumbnail
-  if (!fs.existsSync(thumbnailPath)) return new Error(`Thumbnail not found for: ${thumbnail}`)
+  const lowerThird = await HtmlToImg({
+    output: lowerThirdIGPath,
+    html: lowerThirdIGHtml,
+    transparent: true,
+    content: { name: authorNameString }
+  }).catch(err => { return new Error(`Error creating lower third: ${err}`) })
+  if (lowerThird instanceof Error) return lowerThird
+  if (!fs.existsSync(lowerThirdIGPath)) return new Error(`Lower third IG not found for: ${lowerThirdIGPath}`)
 
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Thumbnail criada!')
+          .setTitle('Criando LowerThird IG!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Finalizado!')
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })

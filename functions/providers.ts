@@ -1,7 +1,7 @@
 import { Message } from 'discord.js'
 import { IUrlData } from '../interfaces'
 import { getOutplayedDownloadData, getOutplayedVideoId, isOutplayedValidUrl, outplayedDownloadClip } from './clipsProviders/outplayed'
-import { getClipData } from './common'
+import { getClipData, updateClipData } from './common'
 import path from 'path'
 import fs from 'fs'
 
@@ -56,10 +56,14 @@ export async function downloadClip (gdClipId: string, logMessage?: Message): Pro
   if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
   const { clipData, path: clipDataPath } = obtainedClipData[0]
   const clipVideoSavePath = path.join(clipDataPath, 'clip.mp4')
-  // if (fs.existsSync(clipVideoSavePath)) return new Error(`Clip already exists for: ${gdClipId}`)
   if (clipData.clipProvider === 'outplayed') {
     const outplayedDownloadedClip = await outplayedDownloadClip(clipData, clipVideoSavePath, logMessage)
     if (outplayedDownloadedClip instanceof Error) return outplayedDownloadedClip
+    const savedDownloadData = updateClipData(gdClipId, {
+      downloadTime: outplayedDownloadedClip
+    })
+    if (savedDownloadData instanceof Error) return savedDownloadData
   }
   if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${gdClipId}`)
+  return new Error(`Unknown provider: ${clipData.clipProvider}`)
 }

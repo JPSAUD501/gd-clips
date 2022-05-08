@@ -21,6 +21,7 @@
     "get-video-duration": "^4.0.0",
     "google-auth-library": "^8.0.2",
     "googleapis": "^100.0.0",
+    "instagram-private-api": "^1.45.3",
     "node-html-to-image": "^3.2.4",
     "progress": "^2.0.3",
     "ts-data-checker": "^1.2.0",

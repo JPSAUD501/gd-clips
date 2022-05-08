@@ -5,9 +5,9 @@ import fs from 'fs'
 import HtmlToImg from 'node-html-to-image'
 import { Message, MessageEmbed } from 'discord.js'
 const extractFrame = require('ffmpeg-extract-frame')
-const thumbnailHtml = fs.readFileSync('./media/thumbnail.html', 'utf8')
+const coverHtml = fs.readFileSync('./media/cover.html', 'utf8')
 
-export async function createThumbnail (gdClipId: string, authorName: string, logMessage?: Message): Promise<void | Error> {
+export async function createCover (gdClipId: string, authorName: string, logMessage?: Message): Promise<void | Error> {
   const obtainedClipData = getClipData(gdClipId)
   if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
   const { clipData, path: clipDataPath } = obtainedClipData[0]
@@ -16,7 +16,7 @@ export async function createThumbnail (gdClipId: string, authorName: string, log
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Criando Thumbnail!')
+          .setTitle('Criando Capa!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Iniciando...')
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
@@ -31,7 +31,7 @@ export async function createThumbnail (gdClipId: string, authorName: string, log
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Criando Thumbnail!')
+          .setTitle('Criando Capa!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Criando...')
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
@@ -44,28 +44,30 @@ export async function createThumbnail (gdClipId: string, authorName: string, log
     offset: Math.floor(clipData.clipDuration * 1000) / 2
   })
   if (!fs.existsSync(previewImgPath)) return new Error(`Preview image not found for: ${previewImgPath}`)
-  const thumbnailPath = path.join(clipDataPath, 'thumbnail.png')
+  const coverPath = path.join(clipDataPath, 'cover.jpg')
   const authorNameString = authorName.substring(0, maxNameThumbnailLength)
 
   const previewImg = fs.readFileSync(previewImgPath)
   const base64PreviewImg = previewImg.toString('base64')
   const previewDataImgURI = 'data:image/png;base64,' + base64PreviewImg
 
-  const thumbnail = await HtmlToImg({
-    output: thumbnailPath,
-    html: thumbnailHtml,
+  const cover = await HtmlToImg({
+    output: coverPath,
+    html: coverHtml,
     transparent: false,
+    type: 'jpeg',
+    // quality: 40,
     content: { name: authorNameString, previewImg: previewDataImgURI }
-  }).catch(err => { return new Error(`Error creating thumbnail: ${err}`) })
-  if (thumbnail instanceof Error) return thumbnail
-  if (!fs.existsSync(thumbnailPath)) return new Error(`Thumbnail not found for: ${thumbnail}`)
+  }).catch(err => { return new Error(`Error creating cover: ${err}`) })
+  if (cover instanceof Error) return cover
+  if (!fs.existsSync(coverPath)) return new Error(`Cover not found for: ${cover}`)
 
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Thumbnail criada!')
+          .setTitle('Capa criada!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Finalizado!')
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })

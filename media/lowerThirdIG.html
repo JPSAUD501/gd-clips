@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="screen"></div>
+      <div class="lowerThird">
+        <div class="v1_46"></div>
+        <div class="v1_47"></div>
+        <span class="v1_48">{{name}}</span>
+      </div>
+    </div>
+  </body>
+</html>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    width: 1300px;
+    height: 1300px;
+    font-size: 14px;
+  }
+  .screen {
+    width: 1300px;
+    height: 1300px;
+    background-color: rgba(0, 0, 0, 0);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+  .lowerThird {
+    position: absolute;
+    top: 1000px;
+    width: 500px;
+    height: 100px;
+  }
+  .v1_46 {
+    width: 500px;
+    height: 100px;
+    background: rgba(52, 29, 191, 1);
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    overflow: hidden;
+  }
+
+  .v1_47 {
+    width: 62px;
+    height: 80px;
+    background: url("https://raw.githubusercontent.com/grupodisparate/GD-CLIPS/master/media/icon.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    overflow: hidden;
+    left: 15px;
+    top: 10px;
+  }
+
+  .v1_48 {
+    width: 392px;
+    color: rgba(255, 255, 255, 1);
+    position: absolute;
+    top: 17px;
+    left: 93px;
+    font-family: Poppins;
+    font-weight: bolder;
+    font-size: 42px;
+    opacity: 1;
+    text-align: center;
+  }
+</style>

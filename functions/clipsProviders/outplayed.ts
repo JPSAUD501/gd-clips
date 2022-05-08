@@ -37,7 +37,7 @@ export async function getOutplayedDownloadData (videoId: string): Promise<{ down
   }
 }
 
-export async function outplayedDownloadClip (clipData: IClipData, clipVideoSavePath: string, logMessage?: Message): Promise<void | Error> {
+export async function outplayedDownloadClip (clipData: IClipData, clipVideoSavePath: string, logMessage?: Message): Promise<number | Error> {
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
@@ -46,6 +46,7 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
           .setTitle('Download do clipe - Outplayed!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Progresso:', 'Iniciando...')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
@@ -53,6 +54,7 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
     return `Baixando clipe do Outplayed: ${clipData.gdClipId} // Progresso: ${progress}`
   }
   if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
+  const dateStart = new Date().getTime()
   const clip = await axios.get(clipData.clipDownloadUrl, { responseType: 'stream' })
   const writer = fs.createWriteStream(clipVideoSavePath)
   clip.data.pipe(writer)
@@ -74,7 +76,8 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
             new MessageEmbed()
               .setTitle('Download do clipe - Outplayed!')
               .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
-              .addField('Progresso:', `${progress.curr}/${progress.total.toString()}`)
+              .addField('Progresso:', `${(progress.curr / progress.total * 100).toFixed(2)}%`)
+              .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
           ]
         }).catch(console.error)
       }
@@ -84,34 +87,9 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
     clip.data.on('end', () => { resolve('success') })
     clip.data.on('error', (err: Error) => { reject(err) })
   })
-  if (download instanceof Error) {
-    if (logMessage) {
-      if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
-      await logMessage.edit({
-        embeds: [
-          new MessageEmbed()
-            .setTitle('Download do clipe - Outplayed!')
-            .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
-            .addField('Progresso:', 'Error ERR: 1')
-        ]
-      }).catch(console.error)
-    }
-    return new Error(`Clip download failed 1 for: ${clipData.gdClipId}`)
-  }
-  if (download !== 'success') {
-    if (logMessage) {
-      if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
-      await logMessage.edit({
-        embeds: [
-          new MessageEmbed()
-            .setTitle('Download do clipe - Outplayed!')
-            .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
-            .addField('Progresso:', 'Error ERR: 2')
-        ]
-      }).catch(console.error)
-    }
-    return new Error(`Clip download failed 2 for: ${clipData.gdClipId}`)
-  }
+  const dateEnd = new Date().getTime()
+  if (download instanceof Error) return new Error(`Clip download failed 1 for: ${clipData.gdClipId}`)
+  if (download !== 'success') return new Error(`Clip download failed 2 for: ${clipData.gdClipId}`)
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
@@ -119,9 +97,11 @@ export async function outplayedDownloadClip (clipData: IClipData, clipVideoSaveP
         new MessageEmbed()
           .setTitle('Download do clipe - Outplayed!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
-          .addField('Progresso:', 'Finished!')
+          .addField('Progresso:', 'Finalizado!')
+          .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
     }).catch(console.error)
   }
   console.log(`Clip downloaded for: ${clipData.gdClipId}`)
+  return dateEnd - dateStart
 }

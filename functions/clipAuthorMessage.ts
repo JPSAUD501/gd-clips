@@ -70,7 +70,7 @@ export async function sendAuthorMessage (modal: ModalSubmitInteraction): Promise
     embeds: [embed]
   }).catch(console.error)
   await clipAuthor.send({ embeds: [embed] }).catch(console.error)
-  const msg = await modal.followUp({
+  const msg = await modal.reply({
     content: 'Mensagem enviada com sucesso!',
     ephemeral: false,
     fetchReply: true
