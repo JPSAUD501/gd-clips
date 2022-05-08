@@ -1,7 +1,6 @@
 import { checkMaxClipTime, saveDownloadData } from './common'
 import { downloadClip } from './providers'
 import { Message, MessageEmbed, User } from 'discord.js'
-import { uploadToIGClip } from './uploadToIGClip'
 import { createCover } from './createCover'
 import { createLowerThirdIG } from './createLowerThirdIG'
 import { editClipIG } from './editClipIG'
@@ -30,8 +29,8 @@ const defaultProcess = async function (gdClipId: string, authorUser?: User, clip
   const editedClipIG = await editClipIG(gdClipId, logMessage)
   if (editedClipIG instanceof Error) return editedClipIG
   // Upload to IG
-  const uploadedClipIG = await uploadToIGClip(gdClipId, authorName, logMessage)
-  if (uploadedClipIG instanceof Error) return uploadedClipIG
+  // const uploadedClipIG = await uploadToIGClip(gdClipId, authorName, logMessage)
+  // if (uploadedClipIG instanceof Error) return uploadedClipIG
 
   authorUser?.send(`Clipe postado com sucesso! Link do nosso Instagram: https://www.instagram.com/grupodisparate !\nClipe ID: ${gdClipId}`)
   await logMessage?.edit({
