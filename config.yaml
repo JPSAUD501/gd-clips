@@ -1,16 +1,18 @@
 GUILD-ID: "720275637415182416" # Discord Guild ID
 CLIPS-CHANNEL-ID: "960323465271984148" # Channel ID for the clips channel
 CLIPS-MODERATION-CHANNEL-ID: "960454690968072192" # Channel ID for the clips moderation channel
+LOG-MESSAGE-CHANNEL-ID: "972745208070549564" # Channel ID for the log message
 BOT-LOG-CHANNEL-ID: "919484652736094218" # Channel ID for the bot log channel
 GUILD-OWNER-QUESTION-CHANNEL-ID: "971676873245470751" # Channel ID for the guild owner question channel (Like Oauth token question)
 MODERATION-ROLE-ID: "854548174458454036" # Role ID for the clips moderation role
 OWNER-ID: "141957307591426050" # Guild owner Discord ID
 MAX-CLIP-TIME: 120 # Maximum clip length in seconds
 MAX-SIMULTANEOUS-CLIPS-PROCESSING: 1 # Maximum simultaneous clips processing
-MAX-TIME-TO-OPT-TO-POST-ON-YT: 180 # Maximum time to opt to post on YouTube in seconds
+MAX-TIME-TO-OPT-TO-POST-ON-INTERNET: 180 # Maximum time to opt to post on Intrnet in seconds
 CLIP-REQUIREMENTS: # Requirements for clips to be accepted
   - -> A duração deve ser menor que 2 minutos.
-  - -> Não pode violar as diretrizes da comunidade do YouTube.
+  - -> Não pode violar as diretrizes do YouTube.
+  - -> Não pode violar as diretrizes do Instagram.
   - -> Não pode violar as regras do Valorant.
   - -> Não pode violar as regras do Grupo Disparate.
   - -> O clipe deve ser do membro que o enviou.

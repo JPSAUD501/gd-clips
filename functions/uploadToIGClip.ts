@@ -2,7 +2,9 @@ import { Message, MessageEmbed } from 'discord.js'
 import fs from 'fs'
 import path from 'path'
 import { config, igClient } from '../constants'
+import { updateClipObject } from './clipObject'
 import { getClipData } from './common'
+import { getFullUrl } from './providers'
 
 export async function uploadToIGClip (gdClipId: string, authorName: string, logMessage?: Message): Promise<void | Error> {
   const obtainedClipData = getClipData(gdClipId)
@@ -32,9 +34,12 @@ export async function uploadToIGClip (gdClipId: string, authorName: string, logM
     coverImage: fs.readFileSync(coverPath),
     caption: `${authorName} - ${clipData.clipCategory} // ${clipDescription}`
   }).catch(console.error)
-
   if (!publishResult) return new Error('Error publishing video')
   console.log(publishResult)
+  const savedClipObject = updateClipObject(getFullUrl(clipData.clipProvider, clipData.clipProviderId), {
+    instagramPostDate: new Date().toISOString()
+  })
+  if (savedClipObject instanceof Error) return savedClipObject
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({

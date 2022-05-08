@@ -26,7 +26,7 @@ export async function newClip (message: Message, url: string): Promise<void> {
     }, 5000)
     setTimeout(() => {
       msgReplyAlreadyPosted.delete().catch(console.error)
-    }, config['MAX-TIME-TO-OPT-TO-POST-ON-YT'] * 1000)
+    }, config['MAX-TIME-TO-OPT-TO-POST-ON-INTERNET'] * 1000)
   }
   const savedClipObject = saveClipObject({
     ...clipObject,
@@ -41,7 +41,7 @@ export async function newClip (message: Message, url: string): Promise<void> {
     await msgReply.edit({ embeds: [embedAlreadyOptedToPostOnInternet] }).catch(console.error)
     setTimeout(() => {
       msgReply.delete().catch()
-    }, config['MAX-TIME-TO-OPT-TO-POST-ON-YT'] * 1000)
+    }, config['MAX-TIME-TO-OPT-TO-POST-ON-INTERNET'] * 1000)
   }
   if (clipObject.postOnInternetResponse === true) return alreadyOptedToPostOnInternetReply()
 
@@ -82,5 +82,5 @@ export async function newClip (message: Message, url: string): Promise<void> {
   if (!msgQuestion) return console.error(`Could not send message question to ${message.author.username} in clips channel.`)
   setTimeout(() => {
     msgQuestion.delete().catch(console.error)
-  }, config['MAX-TIME-TO-OPT-TO-POST-ON-YT'] * 1000)
+  }, config['MAX-TIME-TO-OPT-TO-POST-ON-INTERNET'] * 1000)
 }

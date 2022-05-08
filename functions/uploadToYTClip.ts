@@ -5,6 +5,8 @@ import fs from 'fs'
 import path from 'path'
 import { getClipData } from './common'
 import { config } from '../constants'
+import { updateClipObject } from './clipObject'
+import { getFullUrl } from './providers'
 
 export async function uploadToYTClip (gdClipId: string, authorName: string, logMessage?: Message): Promise<string | Error> {
   const obtainedClipData = getClipData(gdClipId)
@@ -95,12 +97,16 @@ export async function uploadToYTClip (gdClipId: string, authorName: string, logM
     }
   }).catch(console.error)
   if (!setThumbnail) return new Error('The API returned an error')
+  const savedClipObject = updateClipObject(getFullUrl(clipData.clipProvider, clipData.clipProviderId), {
+    youtubePostDate: new Date().toISOString()
+  })
+  if (savedClipObject instanceof Error) return savedClipObject
   if (logMessage) {
     if (!clipData.clipDownloadUrl) return new Error(`Clip download url not found for: ${clipData.gdClipId}`)
     await logMessage.edit({
       embeds: [
         new MessageEmbed()
-          .setTitle('Iniciando envio ao YouTube do clipe!')
+          .setTitle('Envio ao YouTube do clipe!')
           .addField('Clipe ID:', `[${clipData.gdClipId}](${clipData.clipDownloadUrl})`)
           .addField('Link do clipe:', clipLink)
           .addField('Progresso:', 'Enviado!')

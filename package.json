@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "index.js",
   "author": "JPSAUD501",
-  "license": "MPL-2.0",
   "scripts": {
     "start": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node index.ts",
     "test": "ts-node ./tests/gd-clips.test.ts",

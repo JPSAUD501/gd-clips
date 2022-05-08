@@ -1,0 +1,1 @@
+TODO: Merge IClipData into IClipObject and use IClipData ID instead of gdClipId

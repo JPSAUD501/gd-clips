@@ -4,20 +4,20 @@ import { ButtonInteraction, Message, MessageEmbed, MessageButton, MessageActionR
 import { getFullUrl } from './providers'
 import { IClipData } from '../interfaces'
 import { addToQueue } from './clipProcessQueue'
-import { client } from '../constants'
+import { client, config } from '../constants'
 
 export async function clipApprovalResponse (interaction: ButtonInteraction): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
   if (interactionData.type !== 'MP') return
-  const logMessage = await interaction.reply({
+  const replyMessage = await interaction.reply({
     embeds: [
       new MessageEmbed()
         .setTitle(`Carregando ação de "${interaction.user.username}"...`)
     ],
     fetchReply: true
   }).catch(console.error)
-  if (!logMessage) return new Error('Could not reply to message!')
-  if (!(logMessage instanceof Message)) return new Error('Invalid logMessage!')
+  if (!replyMessage) return new Error('Could not reply to message!')
+  if (!(replyMessage instanceof Message)) return new Error('Invalid replyMessage!')
   const clipAuthor = await client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
   if (!clipAuthor) return console.error(`Could not find discord user with id ${interactionData.clipAuthorDiscordId}`)
   const noApproval = async () => {
@@ -45,7 +45,7 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
       embeds: [embed],
       components: [actionRow]
     }).catch(console.error)
-    await logMessage.delete().catch(console.error)
+    await replyMessage.delete().catch(console.error)
   }
 
   if (interactionData.modResponse === 'N') return noApproval()
@@ -76,23 +76,25 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
     components: [actionRow]
   }).catch(console.error)
 
-  const interactionChannel = interaction.message.channel
-  if (!(interactionChannel instanceof TextChannel)) return new Error('Invalid interaction channel!')
-  const approvalMessage = interactionChannel.send({
+  replyMessage.edit({
     embeds: [
       new MessageEmbed()
         .setTitle(`O clipe de ${clipAuthor.username} foi autorizado com sucesso por "${interaction.user.username}"!`)
         .addField('CLipe ID:', `${interactionData.gdClipId}`, true)
-        .setDescription('Ok! Iniciando processamento do clipe...')
+        .setDescription('Ok! Iniciando processamento do clipe.')
     ]
   }).catch(console.error)
-  if (!approvalMessage) return new Error('Could not reply to message!')
-  await logMessage.edit({
+
+  const logMessageChannel = client.channels.cache.get(config['LOG-MESSAGE-CHANNEL-ID'])
+  if (!logMessageChannel) return new Error('Could not find log message channel!')
+  if (!(logMessageChannel instanceof TextChannel)) return new Error('Invalid logMessageChannel!')
+  const logMessage = await logMessageChannel.send({
     embeds: [
       new MessageEmbed()
         .setTitle('Carregando...')
     ]
   }).catch(console.error)
+  if (!logMessage) return new Error('Could not send log message!')
 
   const clipData: IClipData = {
     gdClipId: interactionData.gdClipId,

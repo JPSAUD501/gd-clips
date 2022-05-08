@@ -4,6 +4,5 @@ yarn-error.log
 node_modules
 db
 client-secret
-ideas.txt
 client_secret.json
 client_oauth_token.json
