@@ -98,7 +98,7 @@ export async function uploadToYTClip (gdClipId: string, authorName: string, logM
   }).catch(console.error)
   if (!setThumbnail) return new Error('The API returned an error')
   const savedClipObject = updateClipObject(getFullUrl(clipData.clipProvider, clipData.clipProviderId), {
-    youtubePostDate: new Date().toISOString()
+    youtubePostDate: new Date().toJSON()
   })
   if (savedClipObject instanceof Error) return savedClipObject
   if (logMessage) {

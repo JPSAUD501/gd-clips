@@ -63,6 +63,7 @@ export async function downloadClip (gdClipId: string, logMessage?: Message): Pro
       downloadTime: outplayedDownloadedClip
     })
     if (savedDownloadData instanceof Error) return savedDownloadData
+    return
   }
   if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${gdClipId}`)
   return new Error(`Unknown provider: ${clipData.clipProvider}`)

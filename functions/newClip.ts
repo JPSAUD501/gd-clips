@@ -14,10 +14,9 @@ export async function newClip (message: Message, url: string): Promise<void> {
   const clipObject = getClipObject(url)
   if (clipObject instanceof Error) return console.error(clipObject.message)
   if (!msgReply) return console.error(`Could not send message reply to ${message.author.username} in clips channel.`)
-  if (clipObject.authorDiscordId !== message.author.id) return await falseAuthorshipReply(message, msgReply, clipObject)
   if (clipObject.postedOnClipsChannel) {
     const embedAlreadyPosted = new MessageEmbed()
-      .setTitle('Este clipe já foi postado nesse canal de clipes!')
+      .setTitle('Este clipe já foi postado nesse canal!')
       .setDescription('Sua mensagem sera apagada por conta disso mas você ainda pode optar por enviar esse video para o Instagram e YouTube respondendo a pergunta acima caso ainda não tenha optado por isso.')
     const msgReplyAlreadyPosted = await message.reply({ embeds: [embedAlreadyPosted] }).catch(console.error)
     if (!msgReplyAlreadyPosted) return console.error(`Could not send message reply to ${message.author.username} in clips channel.`)
@@ -34,6 +33,7 @@ export async function newClip (message: Message, url: string): Promise<void> {
     clipsChannelPostDate: new Date().toISOString()
   })
   if (savedClipObject instanceof Error) return console.error(savedClipObject.message)
+  if (clipObject.authorDiscordId !== message.author.id) return await falseAuthorshipReply(message, msgReply, clipObject)
 
   const alreadyOptedToPostOnInternetReply = async () => {
     const embedAlreadyOptedToPostOnInternet = new MessageEmbed()

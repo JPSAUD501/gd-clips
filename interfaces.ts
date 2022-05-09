@@ -98,7 +98,7 @@ export interface IClipObject {
   clipsChannelPostDate?: string,
   postOnInternetResponse?: boolean,
   youtubePostDate?: string,
-  instagramPostData?: string
+  instagramPostDate?: string
 }
 export function checkIClipObject (obj: any): boolean {
   const interfaceChecker = checker('IClipObject', './interfaces').checkJson

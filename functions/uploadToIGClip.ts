@@ -37,7 +37,7 @@ export async function uploadToIGClip (gdClipId: string, authorName: string, logM
   if (!publishResult) return new Error('Error publishing video')
   console.log(publishResult)
   const savedClipObject = updateClipObject(getFullUrl(clipData.clipProvider, clipData.clipProviderId), {
-    instagramPostDate: new Date().toISOString()
+    instagramPostDate: new Date().toJSON()
   })
   if (savedClipObject instanceof Error) return savedClipObject
   if (logMessage) {

@@ -43,7 +43,7 @@ export async function editClipIG (gdClipId: string, logMessage?: Message): Promi
 
   const editStart = Date.now()
   if (!clipData.clipDuration) return new Error(`Clip duration not found for: ${clipData.gdClipId}`)
-  const estimatedTime = 128.77 * clipData.clipDuration * 1000
+  const estimatedTime = 60 * clipData.clipDuration * 1000
 
   const progressLogMessage = setInterval(async () => {
     if (logMessage) {

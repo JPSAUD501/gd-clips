@@ -10,7 +10,13 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
   const gdClipId = interaction.message.id
 
   if (interactionData.clipAuthorDiscordId !== interaction.user.id) {
-    interaction.user.send('Você não é o autor do clipe e por conta disso não pode autorizar ou negar sua postagem no YouTube!').catch(console.error)
+    interaction.user.send({
+      embeds: [
+        new MessageEmbed()
+          .setTitle('Você não é o autor do clipe!')
+          .setDescription('Por conta disso não pode autorizar ou negar sua postagem no YouTube!')
+      ]
+    }).catch(console.error)
     return new Error(`User ${interaction.user.id} is not the clip author of ${gdClipId}!`)
   }
 
@@ -86,11 +92,17 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
   if (!modChannel) throw new Error('Invalid moderation channel!')
   if (!(modChannel instanceof TextChannel)) throw new Error('Invalid moderation channel (No TextChannel)!')
   await modChannel.send({
-    content: `<DELETE@&${config['MODERATION-ROLE-ID']}>`,
+    content: `<@&${config['MODERATION-ROLE-ID']}>`,
     embeds: [embed],
     components: [actionRow]
   }).catch(console.error)
-  await interaction.user
-    .send(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube e Instagram.\nID do clipe: ${gdClipId}\nLink do clipe: ${getFullUrl(interactionData.clipProvider, interactionData.clipProviderId)}`)
-    .catch(console.error)
+  await interaction.user.send({
+    embeds: [
+      new MessageEmbed()
+        .setTitle('Clipe enviado para analise!')
+        .setDescription(`Olá ${interaction.user.username}, seu clipe foi para a analise do Grupo Disparate!\nEm breve você recebera uma confirmação se ele será ou nao postado no YouTube e Instagram.`)
+        .addField('ID do clipe:', gdClipId)
+        .addField('Link do clipe:', getFullUrl(interactionData.clipProvider, interactionData.clipProviderId))
+    ]
+  }).catch(console.error)
 }

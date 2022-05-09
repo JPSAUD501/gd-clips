@@ -21,7 +21,14 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
   const clipAuthor = await client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
   if (!clipAuthor) return console.error(`Could not find discord user with id ${interactionData.clipAuthorDiscordId}`)
   const noApproval = async () => {
-    await clipAuthor.send(`Olá ${clipAuthor.username}, seu clipe (ID: ${interactionData.gdClipId}) não será postado no YouTube pois ele foi negado pela equipe de moderação!`).catch(console.error)
+    await clipAuthor.send({
+      embeds: [
+        new MessageEmbed()
+          .setTitle('Seu clipe não passou na analise da moderação do GD!')
+          .setDescription(`Olá ${clipAuthor.username}, seu clipe não será postado no YouTube pois ele foi negado pela equipe de moderação!`)
+          .addField('Clipe ID', `${interactionData.gdClipId}`)
+      ]
+    })
     if (!(interaction.message instanceof Message)) return new Error('Invalid interaction message!')
     const embed = new MessageEmbed()
       .setTitle(`O clipe de ${clipAuthor.username} foi negado com sucesso por "${interaction.user.username}"!`)
@@ -50,7 +57,14 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
 
   if (interactionData.modResponse === 'N') return noApproval()
 
-  await clipAuthor.send(`Olá ${clipAuthor.username}, seu clipe (ID: ${interactionData.gdClipId}) passou na analise da moderação do GD! Agora nosso BOT irá fazer os procedimentos de download e edição!`).catch(console.error)
+  await clipAuthor.send({
+    embeds: [
+      new MessageEmbed()
+        .setTitle('Seu clipe passou na analise da moderação do GD!')
+        .setDescription(`Olá ${clipAuthor.username}, seu clipe passou na analise da moderação do GD! Agora nosso BOT irá fazer os procedimentos de download, edição e postagem!`)
+        .addField('Clipe ID', `${interactionData.gdClipId}`)
+    ]
+  })
   if (!(interaction.message instanceof Message)) return new Error('Invalid interaction message!')
   const embed = new MessageEmbed()
     .setTitle(`O clipe de ${clipAuthor.username} foi autorizado com sucesso por "${interaction.user.username}"!`)

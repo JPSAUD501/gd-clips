@@ -13,12 +13,11 @@ import { instagramLogin } from './functions/instagramLogin'
 async function startBot () {
   await discordLogin()
   await instagramLogin()
+
   startQueueProcessing()
 
   client.on('messageCreate', async message => {
     if (message.author.bot) return
-    console.log(message)
-    // Split space or \n
     const messageArray = message.content.replace('\n', ' ').split(' ')
     console.log(messageArray)
     for (const messageWord of messageArray) {

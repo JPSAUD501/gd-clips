@@ -8,14 +8,11 @@ export async function falseAuthorshipReply (message: Message, messageReply: Mess
     .setTitle(`${message.author.username} você parece não ser o autor desse clipe!`)
     .addField('Autor registrado:', `${authorUser.username}`, true)
     .addField('Registrado em:', `${new Date(clipObject.firstApearDate).toLocaleString()}`, true)
-    .setDescription('Em breve será possível fazer uma contestação de autoria do clipe.') // TODO: Add clip authorship contestation
+    .setDescription('Infelizmente você não pode autorizar a postagem dele na internet por conta disso. Em breve será possível fazer uma contestação de autoria do clipe.') // TODO: Add clip authorship contestation
 
   const falseAuthorshipReplyMessage = await messageReply.edit({ embeds: [clipFalseAuthorshipEmbed], components: [] }).catch(console.error)
   if (!falseAuthorshipReplyMessage) return console.error(`Could not send false authorship message to ${message.author.username}.`)
   setTimeout(() => {
-    message.delete().catch(console.error)
-  }, 5000)
-  setTimeout(() => {
-    falseAuthorshipReplyMessage?.delete().catch(console.error)
+    falseAuthorshipReplyMessage.delete().catch(console.error)
   }, 30000)
 }

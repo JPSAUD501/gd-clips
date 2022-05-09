@@ -4,6 +4,7 @@ import { Message, MessageEmbed, User } from 'discord.js'
 import { createCover } from './createCover'
 import { createLowerThirdIG } from './createLowerThirdIG'
 import { editClipIG } from './editClipIG'
+import { uploadToIGClip } from './uploadToIGClip'
 
 const defaultProcess = async function (gdClipId: string, authorUser?: User, clipAuthorName?: string, logMessage?: Message): Promise<void | Error> {
   // Clip download data
@@ -29,10 +30,17 @@ const defaultProcess = async function (gdClipId: string, authorUser?: User, clip
   const editedClipIG = await editClipIG(gdClipId, logMessage)
   if (editedClipIG instanceof Error) return editedClipIG
   // Upload to IG
-  // const uploadedClipIG = await uploadToIGClip(gdClipId, authorName, logMessage)
-  // if (uploadedClipIG instanceof Error) return uploadedClipIG
+  const uploadedClipIG = await uploadToIGClip(gdClipId, authorName, logMessage)
+  if (uploadedClipIG instanceof Error) return uploadedClipIG
 
-  authorUser?.send(`Clipe postado com sucesso! Link do nosso Instagram: https://www.instagram.com/grupodisparate !\nClipe ID: ${gdClipId}`)
+  await authorUser?.send({
+    embeds: [
+      new MessageEmbed()
+        .setTitle('Clipe postado com sucesso!')
+        .addField('Clipe ID:', `${gdClipId}`, true)
+        .addField('Link do nosso Instagram:', 'https://www.instagram.com/grupodisparate', true)
+    ]
+  }).catch(console.error)
   await logMessage?.edit({
     embeds: [
       new MessageEmbed()
@@ -59,6 +67,14 @@ export async function processClip (gdClipId: string, authorUser?: User, clipAuth
           .setDescription(`${processed.message}`)
       ]
     }).catch(console.error)
-    authorUser?.send(`Ocorreu um erro ao processar seu clipe (ID: ${gdClipId}). Nossa equipe de moderação ja está sabendo do ocorrido e possivelmente você ira receber atualizações em breve dependendo do ocorrido.`).catch(console.error)
+    await authorUser?.send({
+      embeds: [
+        new MessageEmbed()
+          .setTitle('Erro ao processar clipe!')
+          .addField('Clipe ID:', `${gdClipId}`)
+          .addField('Erro:', `${processed.message}`)
+          .setDescription('Nossa equipe de moderação ja está sabendo do ocorrido e possivelmente você ira receber atualizações em breve.')
+      ]
+    }).catch(console.error)
   }
 }
