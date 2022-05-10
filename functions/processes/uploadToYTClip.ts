@@ -87,7 +87,7 @@ export async function uploadToYTClip (clipObjectId: string, authorName: string, 
     }
   }).catch(console.error)
   if (!setThumbnail) return new Error('The API returned an error')
-  const savedClipObject = updateClipObject(clipObject.url, {
+  const savedClipObject = updateClipObject(clipObject.objectId, {
     youtubePostDate: new Date().toJSON()
   })
   if (savedClipObject instanceof Error) return savedClipObject

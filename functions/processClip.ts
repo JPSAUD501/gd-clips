@@ -90,5 +90,4 @@ export async function processClip (clipObjectId: string, authorUser?: User, clip
       ]
     }).catch(console.error)
   }
-  console.log(`Processed clip: ${clipObjectId}`)
 }
