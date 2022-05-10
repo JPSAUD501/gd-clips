@@ -1,5 +1,5 @@
 import { Message, MessageEmbed } from 'discord.js'
-import { IClipObject } from '../interfaces'
+import { IClipObject } from '../../interfaces'
 
 export async function falseAuthorshipReply (message: Message, messageReply: Message, clipObject: IClipObject): Promise<void> {
   const authorUser = await messageReply.client.users.fetch(clipObject.authorDiscordId).catch(console.error)
@@ -10,9 +10,8 @@ export async function falseAuthorshipReply (message: Message, messageReply: Mess
     .addField('Registrado em:', `${new Date(clipObject.firstApearDate).toLocaleString()}`, true)
     .setDescription('Infelizmente você não pode autorizar a postagem dele na internet por conta disso. Em breve será possível fazer uma contestação de autoria do clipe.') // TODO: Add clip authorship contestation
 
-  const falseAuthorshipReplyMessage = await messageReply.edit({ embeds: [clipFalseAuthorshipEmbed], components: [] }).catch(console.error)
-  if (!falseAuthorshipReplyMessage) return console.error(`Could not send false authorship message to ${message.author.username}.`)
+  await messageReply.edit({ embeds: [clipFalseAuthorshipEmbed], components: [] }).catch(console.error)
   setTimeout(() => {
-    falseAuthorshipReplyMessage.delete().catch(console.error)
+    messageReply.delete().catch(console.error)
   }, 30000)
 }

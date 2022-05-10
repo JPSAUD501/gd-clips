@@ -16,19 +16,20 @@ export async function startQueueProcessing (): Promise<void> {
     const queueObject = queue.shift()
     if (!queueObject) return
     inProcess.push(queueObject)
-    const { gdClipId, authorUser, authorName, logMessage } = queueObject
+    const { clipObjectId, authorUser, authorName, logMessage } = queueObject
     // --> Process Clip
-    await processClip(gdClipId, authorUser, authorName, logMessage)
-    // <-- Process Clip
-    const clipProcessDone = queueClipProcessDone(gdClipId)
+    await processClip(clipObjectId, authorUser, authorName, logMessage)
+    // <--
+    const clipProcessDone = queueClipProcessDone(clipObjectId)
     if (clipProcessDone instanceof Error) throw clipProcessDone
   }, 10000)
 }
 
-export async function addToQueue (gdClipId: string, logMessage?: Message, authorUser?: User, clipAuthorName?: string): Promise<void | Error> {
+export async function addToQueue (clipObjectId: string, clipUrl?: string, logMessage?: Message, authorUser?: User, clipAuthorName?: string): Promise<void | Error> {
   if (!authorUser && !clipAuthorName) return new Error('No author user or author name found!')
   queue.push({
-    gdClipId,
+    clipObjectId,
+    clipUrl: clipUrl || undefined,
     authorUser: authorUser || undefined,
     authorName: clipAuthorName || undefined,
     logMessage: logMessage || undefined
@@ -40,17 +41,21 @@ export async function addToQueue (gdClipId: string, logMessage?: Message, author
 async function updateWaitingClipsLogMessages (): Promise<void | Error> {
   for (const clipObject of queue) {
     if (!clipObject.logMessage) continue
+    if (!clipObject.authorUser && !clipObject.authorName) return new Error('No author user or author name found!')
+    const authorNameString = clipObject.authorName || clipObject.authorUser?.username
+    if (!authorNameString) return new Error('No author name found!')
     const queueLength = queue.length
     const indexPositionInQueue = queue.findIndex(clip => {
-      return clip.gdClipId === clipObject.gdClipId
+      return clip.clipObjectId === clipObject.clipObjectId
     })
-    if (indexPositionInQueue === -1) return new Error(`Clip not found in queue: ${clipObject.gdClipId}`)
+    if (indexPositionInQueue === -1) return new Error(`Clip not found in queue: ${clipObject.clipObjectId}`)
     const positionInQueue = indexPositionInQueue + 1
     await clipObject.logMessage.edit({
       embeds: [
         new MessageEmbed()
           .setTitle('Clipe na fila de processamento!')
-          .addField('Clipe ID:', `${clipObject.gdClipId}`)
+          .addField('Clipe ID:', `[${clipObject.clipObjectId}](${clipObject.clipUrl})`)
+          .addField('Autor do clipe: ', `${authorNameString}`)
           .addField('Posição na fila de processamento:', `${positionInQueue}/${queueLength}`)
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]
@@ -58,10 +63,10 @@ async function updateWaitingClipsLogMessages (): Promise<void | Error> {
   }
 }
 
-function queueClipProcessDone (gdClipId: string): void | Error {
+function queueClipProcessDone (clipObjectId: string): void | Error {
   const indexOfClipObject = inProcess.findIndex(clip => {
-    return clip.gdClipId === gdClipId
+    return clip.clipObjectId === clipObjectId
   })
-  if (indexOfClipObject === -1) return new Error(`Clip not found in inProcess: ${gdClipId}`)
+  if (indexOfClipObject === -1) return new Error(`Clip not found in inProcess: ${clipObjectId}`)
   inProcess.splice(indexOfClipObject, 1)
 }

@@ -11,11 +11,17 @@ export function getClipObjectId (url: string): string | Error {
   return `${urlData.provider}@${urlData.providerId}`
 }
 
-export function getClipObjectPath (url: string): string | Error {
-  const clipObjectId = getClipObjectId(url)
-  if (clipObjectId instanceof Error) return clipObjectId
+export function getClipObjectPath (clipObjectId: string): string | Error {
   const clipLogDbPath = path.join(rootDbPath, 'CLIPS-LOG', `${clipObjectId}.yaml`)
   return clipLogDbPath
+}
+
+export function getClipObjectFolder (clipObjectId: string): string | Error {
+  const clipObject = getClipObject(clipObjectId)
+  if (clipObject instanceof Error) return clipObject
+  if (!clipObject.category) return new Error('No category')
+  const clipObjectFolder = path.join(rootDbPath, clipObject.category)
+  return clipObjectFolder
 }
 
 export function createClipObject (url: string, authorId: string, channelId: string): IClipObject | Error {
@@ -26,6 +32,7 @@ export function createClipObject (url: string, authorId: string, channelId: stri
     objectId: clipObjectId,
     provider: urlData.provider,
     providerId: urlData.providerId,
+    url: url,
     authorDiscordId: authorId,
     firstApearDate: new Date().toJSON(),
     firstApearChannelId: channelId
@@ -41,8 +48,8 @@ export function saveClipObject (clipObject: IClipObject): void | Error {
   fs.writeFileSync(clipObjectPath, YAML.stringify(clipObject), 'utf8')
 }
 
-export function updateClipObject (url: string, { ...options }): void | Error {
-  const clipObject = getClipObject(url)
+export function updateClipObject (clipObjectId: string, { ...options }): void | Error {
+  const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   const newClipObject = { ...clipObject, ...options }
   if (!checkIClipObject(newClipObject)) return new Error(`IClipObject is invalid for: ${clipObject}`)
@@ -50,8 +57,8 @@ export function updateClipObject (url: string, { ...options }): void | Error {
   if (savedClipObject instanceof Error) return savedClipObject
 }
 
-export function getClipObject (url: string): IClipObject | Error {
-  const clipObjectPath = getClipObjectPath(url)
+export function getClipObject (clipObjectId: string): IClipObject | Error {
+  const clipObjectPath = getClipObjectPath(clipObjectId)
   if (clipObjectPath instanceof Error) return clipObjectPath
   if (!fs.existsSync(clipObjectPath)) return new Error('Clip object not found')
   const clipObject = YAML.parse(fs.readFileSync(clipObjectPath, 'utf8')) as IClipObject
@@ -60,14 +67,16 @@ export function getClipObject (url: string): IClipObject | Error {
 }
 
 export function getClipObjectOrCreateOne (url: string, userId: string, channelId: string): IClipObject | Error {
-  const clipObjectPath = getClipObjectPath(url)
+  const clipObjectId = getClipObjectId(url)
+  if (clipObjectId instanceof Error) return new Error('clipObjectId is not valid')
+  const clipObjectPath = getClipObjectPath(clipObjectId)
   if (clipObjectPath instanceof Error) return clipObjectPath
   if (!fs.existsSync(clipObjectPath)) {
     const clipObject = createClipObject(url, userId, channelId)
     if (clipObject instanceof Error) return clipObject
     saveClipObject(clipObject)
   }
-  const clipObject = getClipObject(url)
+  const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   return clipObject
 }

@@ -1,5 +1,5 @@
 import discordModals from 'discord-modals'
-import { client, discordToken } from '../constants'
+import { client, discordToken } from '../../constants'
 
 export async function discordLogin (): Promise<void> {
   discordModals(client)

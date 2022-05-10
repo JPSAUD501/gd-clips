@@ -1,8 +1,8 @@
 import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, Message } from 'discord.js'
-import { falseAuthorshipReply } from './clipAuthorship'
-import { getClipObject, saveClipObject } from './clipObject'
+import { falseAuthorshipReply } from './checks/clipAuthorship'
+import { getClipObject, saveClipObject, getClipObjectId } from './clipObject'
 import { newCustomId } from './common'
-import { getProviderBaseUrl, getUrlData } from './providers'
+import { getUrlData } from './providers'
 import { config } from '../constants'
 
 export async function newClip (message: Message, url: string): Promise<void> {
@@ -11,7 +11,9 @@ export async function newClip (message: Message, url: string): Promise<void> {
 
   const msgReply = await message.reply({ embeds: [embedLoading] }).catch(console.error)
 
-  const clipObject = getClipObject(url)
+  const clipObjectId = getClipObjectId(url)
+  if (clipObjectId instanceof Error) throw clipObjectId
+  const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return console.error(clipObject.message)
   if (!msgReply) return console.error(`Could not send message reply to ${message.author.username} in clips channel.`)
   if (clipObject.postedOnClipsChannel) {
@@ -46,12 +48,11 @@ export async function newClip (message: Message, url: string): Promise<void> {
   if (clipObject.postOnInternetResponse === true) return alreadyOptedToPostOnInternetReply()
 
   const urlData = getUrlData(url)
-
   const embedReply = new MessageEmbed()
     .setColor(`${urlData.providerColor}` as ColorResolvable)
     .setTitle(`${message.author.username} você deseja que esse seu clipe apareça no Instagram e canal do YouTube do Grupo Disparate?`)
     .addField('Autor:', `${message.author}`, true)
-    .addField('Clipe:', `[Clique aqui para ver](${getProviderBaseUrl(urlData.provider)}${urlData.providerId})`, true)
+    .addField('Clipe:', `[Clique aqui para ver](${clipObject.url})`, true)
     .setFooter({ text: `Novo clipe de ${message.author.username} no ${urlData.provider.toUpperCase()}.` })
 
   const actionRow = new MessageActionRow()
@@ -61,9 +62,8 @@ export async function newClip (message: Message, url: string): Promise<void> {
         .setStyle('SUCCESS')
         .setCustomId(newCustomId({
           type: 'RP',
+          clipObjectId: clipObject.objectId,
           clipAuthorDiscordId: String(message.author.id),
-          clipProvider: urlData.provider,
-          clipProviderId: urlData.providerId,
           clipAuthorResponse: 'Y'
         })),
       new MessageButton()
@@ -71,9 +71,8 @@ export async function newClip (message: Message, url: string): Promise<void> {
         .setStyle('DANGER')
         .setCustomId(newCustomId({
           type: 'RP',
+          clipObjectId: clipObject.objectId,
           clipAuthorDiscordId: String(message.author.id),
-          clipProvider: urlData.provider,
-          clipProviderId: urlData.providerId,
           clipAuthorResponse: 'N'
         }))
     )

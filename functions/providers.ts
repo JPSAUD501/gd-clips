@@ -1,7 +1,7 @@
 import { Message } from 'discord.js'
 import { IUrlData } from '../interfaces'
-import { getOutplayedDownloadData, getOutplayedVideoId, isOutplayedValidUrl, outplayedDownloadClip } from './clipsProviders/outplayed'
-import { getClipData, updateClipData } from './common'
+import { getOutplayedDownloadData, getOutplayedVideoId, isOutplayedValidUrl, outplayedDownloadClip } from './clipProviders/outplayed'
+import { getClipObject, getClipObjectFolder, updateClipObject } from './clipObject'
 import path from 'path'
 import fs from 'fs'
 
@@ -46,25 +46,26 @@ export function getFullUrl (provider: string, providerId: string): string {
   return `${getProviderBaseUrl(provider)}${providerId}`
 }
 
-export function getDownloadData (provider: string, providerId: string): Promise<{ downloadUrl: string; videoDuration: number } | Error> {
+export function getDownloadData (provider: string, providerId: string): Promise<{ downloadUrl: string; duration: number } | Error> {
   if (provider === 'outplayed') return getOutplayedDownloadData(providerId)
   throw new Error('Invalid provider')
 }
 
-export async function downloadClip (gdClipId: string, logMessage?: Message): Promise<void | Error> {
-  const obtainedClipData = getClipData(gdClipId)
-  if (obtainedClipData instanceof Error) return new Error(`Clip data not found for: ${gdClipId}`)
-  const { clipData, path: clipDataPath } = obtainedClipData[0]
-  const clipVideoSavePath = path.join(clipDataPath, 'clip.mp4')
-  if (clipData.clipProvider === 'outplayed') {
-    const outplayedDownloadedClip = await outplayedDownloadClip(clipData, clipVideoSavePath, logMessage)
+export async function downloadClip (clipObjectId: string, logMessage?: Message): Promise<void | Error> {
+  const clipObject = getClipObject(clipObjectId)
+  if (clipObject instanceof Error) return clipObject
+  const clipObjectFolder = getClipObjectFolder(clipObjectId)
+  if (clipObjectFolder instanceof Error) return clipObjectFolder
+  const clipVideoSavePath = path.join(clipObjectFolder, 'clip.mp4')
+  if (clipObject.provider === 'outplayed') {
+    const outplayedDownloadedClip = await outplayedDownloadClip(clipObjectId, clipVideoSavePath, logMessage)
     if (outplayedDownloadedClip instanceof Error) return outplayedDownloadedClip
-    const savedDownloadData = updateClipData(gdClipId, {
+    const savedDownloadData = updateClipObject(clipObjectId, {
       downloadTime: outplayedDownloadedClip
     })
     if (savedDownloadData instanceof Error) return savedDownloadData
     return
   }
-  if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${gdClipId}`)
-  return new Error(`Unknown provider: ${clipData.clipProvider}`)
+  if (!fs.existsSync(clipVideoSavePath)) return new Error(`A unknown error occurred while downloading clip for: ${clipObjectId}`)
+  return new Error(`Unknown provider: ${clipObject.provider}`)
 }

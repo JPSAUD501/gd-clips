@@ -14,7 +14,7 @@ export async function sendModalResponseRequestSAM (interaction: ButtonInteractio
       type: 'MRPSAM',
       status: interactionData.status,
       clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
-      gdClipId: interactionData.gdClipId
+      clipObjectId: interactionData.clipObjectId
     }))
     .setTitle('Notificação para o autor do clipe!')
     .addComponents(
@@ -47,26 +47,26 @@ export async function sendAuthorMessage (modal: ModalSubmitInteraction): Promise
   if (interactionData.status === 'STB') {
     embed = new MessageEmbed()
       .setTitle('Mensagem da moderação do GD!')
-      .setDescription(`Voce recebeu uma mensagem de moderação do GD em relação ao seu clipe de ID: ${interactionData.gdClipId}`)
+      .setDescription(`Voce recebeu uma mensagem de moderação do GD em relação ao seu clipe de ID: ${interactionData.clipObjectId}`)
       .addField('Mensagem:', firstResponse, true)
       .setFooter({ text: `Mensagem enviada por ${modal.user.username}` })
   }
   if (interactionData.status === 'A') {
     embed = new MessageEmbed()
       .setTitle('Mensagem da moderação do GD!')
-      .setDescription(`Voce recebeu uma mensagem de moderação do GD em relação ao seu clipe autorizado para ser postado no YouTube de ID: ${interactionData.gdClipId}`)
+      .setDescription(`Voce recebeu uma mensagem de moderação do GD em relação ao seu clipe autorizado para ser postado no YouTube de ID: ${interactionData.clipObjectId}`)
       .addField('Mensagem:', firstResponse, true)
       .setFooter({ text: `Mensagem enviada por ${modal.user.username}` })
   }
   if (interactionData.status === 'D') {
     embed = new MessageEmbed()
       .setTitle('Mensagem da moderação do GD!')
-      .setDescription(`Voce recebeu uma mensagem de moderação do GD em relação ao seu clipe negado de ID: ${interactionData.gdClipId}`)
+      .setDescription(`Voce recebeu uma mensagem de moderação do GD em relação ao seu clipe negado de ID: ${interactionData.clipObjectId}`)
       .addField('Mensagem:', firstResponse, true)
       .setFooter({ text: `Mensagem enviada por ${modal.user.username}` })
   }
   await logChannel.send({
-    content: `Uma mensagem em relação ao clipe de ID: ${interactionData.gdClipId} foi enviada para o autor do clipe **"${clipAuthor.username}" - "${clipAuthor}"**!`,
+    content: `Uma mensagem em relação ao clipe de ID: ${interactionData.clipObjectId} foi enviada para o autor do clipe **"${clipAuthor.username}" - "${clipAuthor}"**!`,
     embeds: [embed]
   }).catch(console.error)
   await clipAuthor.send({ embeds: [embed] }).catch(console.error)

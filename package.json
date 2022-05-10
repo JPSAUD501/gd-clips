@@ -2,6 +2,8 @@
   "name": "gd-clips",
   "version": "1.0.0",
   "main": "index.js",
+  "license": "UNLICENSED",
+  "private": true,
   "author": "JPSAUD501",
   "scripts": {
     "start": "xvfb-run -s '-ac -screen 0 1280x1024x24' ts-node index.ts",

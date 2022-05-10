@@ -4,10 +4,9 @@ import { checker } from 'ts-data-checker'
 
 export interface IRequestPermission {
   type: 'RP',
+  clipObjectId: string,
   clipAuthorDiscordId: string,
-  clipAuthorResponse: 'Y' | 'N',
-  clipProvider: string,
-  clipProviderId: string,
+  clipAuthorResponse: 'Y' | 'N'
 }
 export function checkIRequestPermission (obj: any): boolean {
   const interfaceChecker = checker('IRequestPermission', './interfaces').checkJson
@@ -16,12 +15,10 @@ export function checkIRequestPermission (obj: any): boolean {
 
 export interface IModPermission {
   type: 'MP',
-  gdClipId: string,
+  clipObjectId: string,
   modResponse: 'Y' | 'N',
   clipCategory: 'FUNNY' | 'EPIC' | 'TRASH',
-  clipAuthorDiscordId: string,
-  clipProvider: string,
-  clipProviderId: string,
+  clipAuthorDiscordId: string
 }
 export function checkIModPermission (obj: any): boolean {
   const interfaceChecker = checker('IModPermission', './interfaces').checkJson
@@ -32,7 +29,7 @@ export interface IModalRequestSendAuthorMessage {
   type: 'MRQSAM',
   status: 'STB' | 'A' | 'D',
   clipAuthorDiscordId: string,
-  gdClipId: string,
+  clipObjectId: string,
 }
 export function checkISendAuthorMessage (obj: any): boolean {
   const interfaceChecker = checker('IModalRequestSendAuthorMessage', './interfaces').checkJson
@@ -43,7 +40,7 @@ export interface IModalResponseSendAuthorMessage {
   type: 'MRPSAM',
   status: 'STB' | 'A' | 'D',
   clipAuthorDiscordId: string,
-  gdClipId: string,
+  clipObjectId: string,
 }
 export function checkIModalResponseSendAuthorMessage (obj: any): boolean {
   const interfaceChecker = checker('IModalResponseSendAuthorMessage', './interfaces').checkJson
@@ -60,24 +57,9 @@ export function checkIUrlData (obj: any): boolean {
   return interfaceChecker(JSON.stringify(obj))
 }
 
-export interface IClipData {
-  gdClipId: string,
-  clipCategory: 'FUNNY' | 'EPIC' | 'TRASH',
-  clipAuthorDiscordId: string,
-  clipProvider: string,
-  clipProviderId: string,
-  clipDate: string,
-  clipDownloadUrl?: string,
-  clipDuration?: number,
-  downloadTime?: number
-}
-export function checkIClipData (obj: any): boolean {
-  const interfaceChecker = checker('IClipData', './interfaces').checkJson
-  return interfaceChecker(JSON.stringify(obj))
-}
-
 export interface IQueueObject {
-  gdClipId: string,
+  clipObjectId: string,
+  clipUrl?: string,
   authorUser?: User,
   authorName?: string,
   logMessage?: Message
@@ -91,12 +73,16 @@ export interface IClipObject {
   objectId: string,
   provider: string,
   providerId: string,
+  url: string,
   authorDiscordId: string,
   firstApearDate: string,
   firstApearChannelId: string,
   postedOnClipsChannel?: boolean,
   clipsChannelPostDate?: string,
   postOnInternetResponse?: boolean,
+  category?: 'FUNNY' | 'EPIC' | 'TRASH',
+  downloadUrl?: string,
+  duration?: number,
   youtubePostDate?: string,
   instagramPostDate?: string
 }

@@ -6,14 +6,16 @@ import { IgApiClient } from 'instagram-private-api'
 
 dotenv.config()
 
-const discordTokenVerification = process.env['DISCORD-TOKEN']
-if (!discordTokenVerification) throw new Error('DISCORD-TOKEN environment variable not set')
-const instagramUsernameVerification = process.env['INSTAGRAM-USERNAME']
-if (!instagramUsernameVerification) throw new Error('INSTAGRAM-USERNAME environment variable not set')
-const instagramPasswordVerification = process.env['INSTAGRAM-PASSWORD']
-if (!instagramPasswordVerification) throw new Error('INSTAGRAM-PASSWORD environment variable not set')
+// Checking .ENV
 
-// Constants
+const discordTokenEnv = process.env['DISCORD-TOKEN']
+if (!discordTokenEnv) throw new Error('DISCORD-TOKEN environment variable not set')
+const instagramUsernameEnv = process.env['INSTAGRAM-USERNAME']
+if (!instagramUsernameEnv) throw new Error('INSTAGRAM-USERNAME environment variable not set')
+const instagramPasswordEnv = process.env['INSTAGRAM-PASSWORD']
+if (!instagramPasswordEnv) throw new Error('INSTAGRAM-PASSWORD environment variable not set')
+
+// Export Clients
 
 export const client = new Discord.Client({ // Discord Client
   restTimeOffset: 0,
@@ -30,12 +32,14 @@ export const client = new Discord.Client({ // Discord Client
 
 export const igClient = new IgApiClient() // Instagram Client
 
-export const discordToken = discordTokenVerification // Discord token from .ENV
-export const instagramUsername = instagramUsernameVerification // Instagram Username token from .ENV
-export const instagramPassword = instagramPasswordVerification // Instagram Password token from .ENV
+// Constants
+
+/* From .ENV */ export const discordToken = discordTokenEnv // Discord token
+/* From .ENV */ export const instagramUsername = instagramUsernameEnv // Instagram Username
+/* From .ENV */ export const instagramPassword = instagramPasswordEnv // Instagram Password
 export const maxNameLowerThirdLength = 9 // Unless you change the html template, this is the max length of the author name in the lower third
 export const maxNameThumbnailLength = 9 // Unless you change the html template, this is the max length of the author name in the thumbnail
-export const interactionCustomIdSeparator = '@' // I don't recommend changing this
+export const interactionCustomIdSeparator = '§' // I don't recommend changing this
 export const rootDbPath = 'db' // Root path for the database
 export const credentialsPath = 'youtube-auth/client_secret.json' // Root path for the youtube client secret
 export const tokenPath = 'youtube-auth/client_oauth_token.json' // Root path for the youtube oauth token

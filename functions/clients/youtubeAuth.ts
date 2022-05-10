@@ -1,8 +1,8 @@
 import { OAuth2Client } from 'googleapis-common'
 import { google } from 'googleapis'
-import { credentialsPath, tokenPath, youtubeOauthScopes } from '../constants'
+import { credentialsPath, tokenPath, youtubeOauthScopes } from '../../constants'
 import fs from 'fs'
-import { sendGuildOwnerQuestion } from './guildOwnerQuestion'
+import { sendGuildOwnerQuestion } from '../guildOwnerQuestion'
 
 export async function authorize (): Promise<OAuth2Client | Error> {
   const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'))

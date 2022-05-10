@@ -3,12 +3,12 @@ import { clipPermissionResponse } from './functions/clipPermissionResponse'
 import { clipApprovalResponse } from './functions/clipApprovalResponse'
 import { readCustomId } from './functions/common'
 import { sendAuthorMessage, sendModalResponseRequestSAM } from './functions/clipAuthorMessage'
-import { discordLogin } from './functions/discordLogin'
+import { discordLogin } from './functions/clients/discordLogin'
 import { startQueueProcessing } from './functions/clipProcessQueue'
 import { isValidUrl } from './functions/providers'
 import { getClipObjectOrCreateOne } from './functions/clipObject'
 import { client, config } from './constants'
-import { instagramLogin } from './functions/instagramLogin'
+import { instagramLogin } from './functions/clients/instagramLogin'
 
 async function startBot () {
   await discordLogin()
@@ -47,5 +47,4 @@ async function startBot () {
     if (interactionData.type === 'MRPSAM') sendAuthorMessage(modal).catch(console.error)
   })
 }
-
 startBot() // Start the bot

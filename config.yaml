@@ -8,7 +8,7 @@ MODERATION-ROLE-ID: "854548174458454036" # Role ID for the clips moderation role
 OWNER-ID: "141957307591426050" # Guild owner Discord ID
 MAX-CLIP-TIME: 120 # Maximum clip length in seconds
 MAX-SIMULTANEOUS-CLIPS-PROCESSING: 1 # Maximum simultaneous clips processing
-MAX-TIME-TO-OPT-TO-POST-ON-INTERNET: 180 # Maximum time to opt to post on Intrnet in seconds
+MAX-TIME-TO-OPT-TO-POST-ON-INTERNET: 120 # Maximum time to opt to post on Internet in seconds
 CLIP-REQUIREMENTS: # Requirements for clips to be accepted
   - -> A duração deve ser menor que 2 minutos.
   - -> Não pode violar as diretrizes do YouTube.

@@ -1,4 +1,4 @@
-import { igClient, instagramPassword, instagramUsername } from '../constants'
+import { igClient, instagramPassword, instagramUsername } from '../../constants'
 
 export async function instagramLogin (): Promise<void> {
   igClient.state.generateDevice(instagramUsername)

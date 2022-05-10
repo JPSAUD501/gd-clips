@@ -1,10 +1,9 @@
 
-import { newCustomId, readCustomId, saveClipData } from './common'
+import { newCustomId, readCustomId } from './common'
 import { ButtonInteraction, Message, MessageEmbed, MessageButton, MessageActionRow, TextChannel } from 'discord.js'
-import { getFullUrl } from './providers'
-import { IClipData } from '../interfaces'
 import { addToQueue } from './clipProcessQueue'
 import { client, config } from '../constants'
+import { getClipObject } from './clipObject'
 
 export async function clipApprovalResponse (interaction: ButtonInteraction): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
@@ -20,23 +19,25 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
   if (!(replyMessage instanceof Message)) return new Error('Invalid replyMessage!')
   const clipAuthor = await client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
   if (!clipAuthor) return console.error(`Could not find discord user with id ${interactionData.clipAuthorDiscordId}`)
+  const clipObject = getClipObject(interactionData.clipObjectId)
+  if (clipObject instanceof Error) return clipObject
   const noApproval = async () => {
     await clipAuthor.send({
       embeds: [
         new MessageEmbed()
           .setTitle('Seu clipe não passou na analise da moderação do GD!')
           .setDescription(`Olá ${clipAuthor.username}, seu clipe não será postado no YouTube pois ele foi negado pela equipe de moderação!`)
-          .addField('Clipe ID', `${interactionData.gdClipId}`)
+          .addField('Clipe ID', `${interactionData.clipObjectId}`)
       ]
     })
     if (!(interaction.message instanceof Message)) return new Error('Invalid interaction message!')
     const embed = new MessageEmbed()
       .setTitle(`O clipe de ${clipAuthor.username} foi negado com sucesso por "${interaction.user.username}"!`)
       .addField('Autor:', `${clipAuthor.username}`, true)
-      .addField('Clipe:', `[Clique aqui para ver](${getFullUrl(interactionData.clipProvider, interactionData.clipProviderId)})`, true)
-      .addField('ID:', `${interactionData.gdClipId}`, true)
+      .addField('Clipe:', `[Clique aqui para ver](${clipObject.url})`, true)
+      .addField('ID:', `${interactionData.clipObjectId}`, true)
       .setDescription('Caso queira enviar ao autor o motivo da negativa do clipe, clique no botão verde abaixo!')
-      .setFooter({ text: `Clipe negado de ${clipAuthor.username} do ${interactionData.clipProvider.toUpperCase()}.` })
+      .setFooter({ text: `Clipe negado de ${clipAuthor.username} do ${clipObject.provider.toUpperCase()}.` })
     const actionRow = new MessageActionRow()
       .addComponents(
         new MessageButton()
@@ -46,7 +47,7 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
             type: 'MRQSAM',
             status: 'D',
             clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
-            gdClipId: interactionData.gdClipId
+            clipObjectId: interactionData.clipObjectId
           })))
     await interaction.message.edit({
       embeds: [embed],
@@ -62,18 +63,18 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
       new MessageEmbed()
         .setTitle('Seu clipe passou na analise da moderação do GD!')
         .setDescription(`Olá ${clipAuthor.username}, seu clipe passou na analise da moderação do GD! Agora nosso BOT irá fazer os procedimentos de download, edição e postagem!`)
-        .addField('Clipe ID', `${interactionData.gdClipId}`)
+        .addField('Clipe ID', `${interactionData.clipObjectId}`)
     ]
   })
   if (!(interaction.message instanceof Message)) return new Error('Invalid interaction message!')
   const embed = new MessageEmbed()
     .setTitle(`O clipe de ${clipAuthor.username} foi autorizado com sucesso por "${interaction.user.username}"!`)
     .addField('Autor:', `${clipAuthor.username}`, true)
-    .addField('Clipe:', `[Clique aqui para ver](${getFullUrl(interactionData.clipProvider, interactionData.clipProviderId)})`, true)
+    .addField('Clipe:', `[Clique aqui para ver](${clipObject.provider})`, true)
     .addField('Categoria:', `${interactionData.clipCategory}`, true)
-    .addField('ID:', `${interactionData.gdClipId}`, true)
+    .addField('ID:', `${interactionData.clipObjectId}`, true)
     .setDescription('Caso queira enviar ao autor uma atualização especial, clique no botão verde abaixo!')
-    .setFooter({ text: `Clipe de ${clipAuthor.username} no ${interactionData.clipProvider.toUpperCase()}.` })
+    .setFooter({ text: `Clipe de ${clipAuthor.username} no ${clipObject.provider.toUpperCase()}.` })
   const actionRow = new MessageActionRow()
     .addComponents(
       new MessageButton()
@@ -83,7 +84,7 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
           type: 'MRQSAM',
           status: 'A',
           clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
-          gdClipId: interactionData.gdClipId
+          clipObjectId: interactionData.clipObjectId
         })))
   await interaction.message.edit({
     embeds: [embed],
@@ -94,7 +95,7 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
     embeds: [
       new MessageEmbed()
         .setTitle(`O clipe de ${clipAuthor.username} foi autorizado com sucesso por "${interaction.user.username}"!`)
-        .addField('CLipe ID:', `${interactionData.gdClipId}`, true)
+        .addField('CLipe ID:', `${interactionData.clipObjectId}`, true)
         .setDescription('Ok! Iniciando processamento do clipe.')
     ]
   }).catch(console.error)
@@ -110,16 +111,12 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
   }).catch(console.error)
   if (!logMessage) return new Error('Could not send log message!')
 
-  const clipData: IClipData = {
-    gdClipId: interactionData.gdClipId,
-    clipCategory: interactionData.clipCategory,
-    clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
-    clipProvider: interactionData.clipProvider,
-    clipProviderId: interactionData.clipProviderId,
-    clipDate: new Date().toJSON()
-  }
-  const save = saveClipData(clipData)
-  if (save instanceof Error) return save
-  const addedToQueue = addToQueue(interactionData.gdClipId, logMessage, clipAuthor, undefined)
+  const addedToQueue = addToQueue(
+    interactionData.clipObjectId,
+    clipObject.url,
+    logMessage,
+    clipAuthor,
+    undefined
+  )
   if (addedToQueue instanceof Error) return addedToQueue
 }
