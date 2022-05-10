@@ -61,7 +61,7 @@ export async function downloadClip (clipObjectId: string, logMessage?: Message):
     const outplayedDownloadedClip = await outplayedDownloadClip(clipObjectId, clipVideoSavePath, logMessage)
     if (outplayedDownloadedClip instanceof Error) return outplayedDownloadedClip
     const savedDownloadData = updateClipObject(clipObjectId, {
-      downloadTime: outplayedDownloadedClip
+      downloadTimer: outplayedDownloadedClip
     })
     if (savedDownloadData instanceof Error) return savedDownloadData
     return

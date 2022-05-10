@@ -3,7 +3,7 @@ import { newCustomId, readCustomId } from './common'
 import { ButtonInteraction, Message, MessageEmbed, MessageButton, MessageActionRow, TextChannel } from 'discord.js'
 import { addToQueue } from './clipProcessQueue'
 import { client, config } from '../constants'
-import { getClipObject } from './clipObject'
+import { getClipObject, updateClipObject } from './clipObject'
 
 export async function clipApprovalResponse (interaction: ButtonInteraction): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
@@ -70,7 +70,7 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
   const embed = new MessageEmbed()
     .setTitle(`O clipe de ${clipAuthor.username} foi autorizado com sucesso por "${interaction.user.username}"!`)
     .addField('Autor:', `${clipAuthor.username}`, true)
-    .addField('Clipe:', `[Clique aqui para ver](${clipObject.provider})`, true)
+    .addField('Clipe:', `[Clique aqui para ver](${clipObject.url})`, true)
     .addField('Categoria:', `${interactionData.clipCategory}`, true)
     .addField('ID:', `${interactionData.clipObjectId}`, true)
     .setDescription('Caso queira enviar ao autor uma atualização especial, clique no botão verde abaixo!')
@@ -109,8 +109,12 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
         .setTitle('Carregando...')
     ]
   }).catch(console.error)
-  if (!logMessage) return new Error('Could not send log message!')
 
+  if (!logMessage) return new Error('Could not send log message!')
+  const clipObjectCategory = updateClipObject(interactionData.clipObjectId, {
+    category: interactionData.clipCategory
+  })
+  if (clipObjectCategory instanceof Error) return clipObjectCategory
   const addedToQueue = addToQueue(
     interactionData.clipObjectId,
     clipObject.url,

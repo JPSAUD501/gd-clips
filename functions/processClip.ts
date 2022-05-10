@@ -5,8 +5,20 @@ import { createCover } from './processes/createCover'
 import { createLowerThirdIG } from './processes/createLowerThirdIG'
 import { editClipIG } from './processes/editClipIG'
 import { uploadToIGClip } from './processes/uploadToIGClip'
+import { getClipObject } from './clipObject'
 
 const defaultProcess = async function (clipObjectId: string, authorUser?: User, clipAuthorName?: string, logMessage?: Message): Promise<void | Error> {
+  const clipObject = getClipObject(clipObjectId)
+  if (clipObject instanceof Error) return clipObject
+  await logMessage?.edit({
+    embeds: [
+      new MessageEmbed()
+        .setTitle('Iniciando processamento padrão!')
+        .addField('Clipe ID:', `[${clipObjectId}](${clipObject.url})`)
+        .addField('Progresso:', 'Iniciando...')
+        .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
+    ]
+  }).catch(console.error)
   // Clip download data
   const savedDownloadData = await saveDownloadData(clipObjectId)
   if (savedDownloadData instanceof Error) return savedDownloadData
@@ -37,7 +49,7 @@ const defaultProcess = async function (clipObjectId: string, authorUser?: User, 
     embeds: [
       new MessageEmbed()
         .setTitle('Clipe postado com sucesso!')
-        .addField('Clipe ID:', `${clipObjectId}`, true)
+        .addField('Clipe ID:', `[${clipObjectId}](${clipObject.url})`, true)
         .addField('Link da postagem:', `${uploadedClipIG}`, true)
     ]
   }).catch(console.error)
@@ -45,7 +57,7 @@ const defaultProcess = async function (clipObjectId: string, authorUser?: User, 
     embeds: [
       new MessageEmbed()
         .setTitle('Processamento padrão do clipe concluído!')
-        .addField('Clipe ID:', `${clipObjectId}`)
+        .addField('Clipe ID:', `[${clipObjectId}](${clipObject.url})`)
         .addField('Progresso:', 'Finalizado!')
         .addField('Link da postagem IG:', `${uploadedClipIG}`)
         .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
@@ -78,4 +90,5 @@ export async function processClip (clipObjectId: string, authorUser?: User, clip
       ]
     }).catch(console.error)
   }
+  console.log(`Processed clip: ${clipObjectId}`)
 }

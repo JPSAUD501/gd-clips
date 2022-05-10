@@ -1,5 +1,5 @@
 import { checkIClipObject, IClipObject } from '../interfaces'
-import { getFullUrl, getUrlData, isValidUrl } from './providers'
+import { getUrlData, isValidUrl } from './providers'
 import fs from 'fs'
 import { rootDbPath } from '../constants'
 import path from 'path'
@@ -20,7 +20,7 @@ export function getClipObjectFolder (clipObjectId: string): string | Error {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   if (!clipObject.category) return new Error('No category')
-  const clipObjectFolder = path.join(rootDbPath, clipObject.category)
+  const clipObjectFolder = path.join(rootDbPath, clipObject.category, clipObjectId)
   return clipObjectFolder
 }
 
@@ -41,8 +41,7 @@ export function createClipObject (url: string, authorId: string, channelId: stri
 }
 
 export function saveClipObject (clipObject: IClipObject): void | Error {
-  const clipUrl = getFullUrl(clipObject.provider, clipObject.providerId)
-  const clipObjectPath = getClipObjectPath(clipUrl)
+  const clipObjectPath = getClipObjectPath(clipObject.objectId)
   if (clipObjectPath instanceof Error) return clipObjectPath
   if (!fs.existsSync(path.dirname(clipObjectPath))) fs.mkdirSync(path.dirname(clipObjectPath), { recursive: true })
   fs.writeFileSync(clipObjectPath, YAML.stringify(clipObject), 'utf8')
@@ -52,7 +51,7 @@ export function updateClipObject (clipObjectId: string, { ...options }): void | 
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   const newClipObject = { ...clipObject, ...options }
-  if (!checkIClipObject(newClipObject)) return new Error(`IClipObject is invalid for: ${clipObject}`)
+  if (!checkIClipObject(newClipObject)) return new Error(`IClipObject is invalid for: ${newClipObject}`)
   const savedClipObject = saveClipObject(newClipObject)
   if (savedClipObject instanceof Error) return savedClipObject
 }

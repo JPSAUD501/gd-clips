@@ -83,6 +83,7 @@ export interface IClipObject {
   category?: 'FUNNY' | 'EPIC' | 'TRASH',
   downloadUrl?: string,
   duration?: number,
+  downloadTimer?: number,
   youtubePostDate?: string,
   instagramPostDate?: string
 }

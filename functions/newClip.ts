@@ -77,9 +77,8 @@ export async function newClip (message: Message, url: string): Promise<void> {
         }))
     )
 
-  const msgQuestion = await msgReply.edit({ embeds: [embedReply], components: [actionRow] }).catch(console.error)
-  if (!msgQuestion) return console.error(`Could not send message question to ${message.author.username} in clips channel.`)
+  await msgReply.edit({ embeds: [embedReply], components: [actionRow] }).catch(console.error)
   setTimeout(() => {
-    msgQuestion.delete().catch(console.error)
+    msgReply.delete().catch(() => { console.log('Maybe the message was already deleted. (Ok)') })
   }, config['MAX-TIME-TO-OPT-TO-POST-ON-INTERNET'] * 1000)
 }

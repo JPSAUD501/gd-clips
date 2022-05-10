@@ -26,6 +26,15 @@ export async function uploadToIGClip (clipObjectId: string, authorName: string, 
   const clipDescription: string = config['IG-CLIP-DESCRIPTION']
   if (!clipDescription) return new Error('Default description not found')
   if (!clipObject.category) return new Error('Clip category not found')
+  await logMessage?.edit({
+    embeds: [
+      new MessageEmbed()
+        .setTitle('Envio ao Instagram do clipe!')
+        .addField('Clipe ID:', `[${clipObjectId}](${clipObject.url})`)
+        .addField('Progresso:', 'Enviando...')
+        .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
+    ]
+  }).catch(console.error)
   const publishResult = await igClient.publish.video({
     video: fs.readFileSync(videoPath),
     coverImage: fs.readFileSync(coverPath),
