@@ -41,7 +41,6 @@ export async function uploadToIGClip (clipObjectId: string, authorName: string, 
     caption: `${authorName} - ${clipObject.category} // ${clipDescription}`
   }).catch(console.error)
   if (!publishResult) return new Error('Error publishing video')
-  console.log(publishResult)
   const savedClipObject = updateClipObject(clipObject.objectId, {
     instagramPostDate: new Date().toJSON()
   })
