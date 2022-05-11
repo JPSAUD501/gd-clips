@@ -42,7 +42,7 @@ export async function editClipIG (clipObjectId: string, logMessage?: Message): P
 
   const editStart = Date.now()
   if (!clipObject.duration) return new Error(`Clip duration not found for: ${clipObjectId}`)
-  const estimatedTime = 30 * clipObject.duration * 1000
+  const estimatedTime = 25 * clipObject.duration * 1000
 
   const progressLogMessage = setInterval(async () => {
     await logMessage?.edit({

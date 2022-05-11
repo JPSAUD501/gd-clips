@@ -11,11 +11,21 @@ export async function newClip (message: Message, url: string): Promise<void> {
 
   const msgReply = await message.reply({ embeds: [embedLoading] }).catch(console.error)
 
-  const clipObjectId = getClipObjectId(url)
+  const clipObjectId = await getClipObjectId(url)
   if (clipObjectId instanceof Error) throw clipObjectId
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return console.error(clipObject.message)
   if (!msgReply) return console.error(`Could not send message reply to ${message.author.username} in clips channel.`)
+  if (clipObject.provider === 'discord') {
+    const embedDiscordInfo = new MessageEmbed()
+      .setTitle('Atenção!')
+      .setDescription('Infelizmente nosso sistema de autoria de clipe e de exclusão de duplicatas não se aplica aos videos hospedados no Discord! O Grupo Disparate usa e recomenda o Outplayed como aplicativo para salvar suas melhores jogadas!')
+    const msgDiscordInfo = await message.reply({ embeds: [embedDiscordInfo] }).catch(console.error)
+    if (!msgDiscordInfo) return console.error(`Could not send message reply to ${message.author.username} in clips channel.`)
+    setTimeout(() => {
+      msgDiscordInfo.delete().catch(console.error)
+    }, config['MAX-TIME-INFO-MSG'] * 1000)
+  }
   if (clipObject.postedOnClipsChannel) {
     const embedAlreadyPosted = new MessageEmbed()
       .setTitle('Este clipe já foi postado nesse canal!')
@@ -27,8 +37,9 @@ export async function newClip (message: Message, url: string): Promise<void> {
     }, 5000)
     setTimeout(() => {
       msgReplyAlreadyPosted.delete().catch(console.error)
-    }, config['MAX-TIME-TO-OPT-TO-POST-ON-INTERNET'] * 1000)
+    }, config['MAX-TIME-INFO-MSG'] * 1000)
   }
+
   const savedClipObject = saveClipObject({
     ...clipObject,
     postedOnClipsChannel: true,
@@ -47,7 +58,7 @@ export async function newClip (message: Message, url: string): Promise<void> {
   }
   if (clipObject.postOnInternetResponse === true) return alreadyOptedToPostOnInternetReply()
 
-  const urlData = getUrlData(url)
+  const urlData = await getUrlData(url)
   const embedReply = new MessageEmbed()
     .setColor(`${urlData.providerColor}` as ColorResolvable)
     .setTitle(`${message.author.username} você deseja que esse seu clipe apareça no Instagram e canal do YouTube do Grupo Disparate?`)

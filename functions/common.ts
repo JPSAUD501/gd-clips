@@ -115,7 +115,7 @@ export function readCustomId (customId: string): IRequestPermission | IModPermis
 export async function saveDownloadData (clipObjectId: string): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return new Error(`Clip object not found for: ${clipObjectId}`)
-  const downloadData = await getDownloadData(clipObject.provider, clipObject.providerId)
+  const downloadData = await getDownloadData(clipObject.objectId)
   if (downloadData instanceof Error) return downloadData
   const { downloadUrl, duration } = downloadData
   const saveDownloadData1 = updateClipObject(clipObject.objectId, {

@@ -4,30 +4,41 @@ import { getOutplayedDownloadData, getOutplayedVideoId, isOutplayedValidUrl, out
 import { getClipObject, getClipObjectFolder, updateClipObject } from './clipObject'
 import path from 'path'
 import fs from 'fs'
+import { discordDownloadClip, getDiscordDownloadData, getDiscordVideoId, isDiscordValidUrl } from './clipProviders/discord'
 
-export function isValidUrl (word: string): boolean {
-  if (isOutplayedValidUrl(word)) return true
+export async function isValidUrl (word: string): Promise<boolean> {
+  if (await isOutplayedValidUrl(word)) return true
+  if (await isDiscordValidUrl(word)) return true
   return false
 }
 
-function getVideoProviderId (url: string): string {
-  if (isOutplayedValidUrl(url)) return getOutplayedVideoId(url)
+async function getVideoProviderId (url: string): Promise<string> {
+  if (await isOutplayedValidUrl(url)) return getOutplayedVideoId(url)
+  if (await isDiscordValidUrl(url)) return getDiscordVideoId(url)
   throw new Error('Invalid URL')
 }
 
-function getProvider (url: string): string {
-  if (isOutplayedValidUrl(url)) return 'outplayed'
+async function getProvider (url: string): Promise<string> {
+  if (await isOutplayedValidUrl(url)) return 'outplayed'
+  if (await isDiscordValidUrl(url)) return 'discord'
   throw new Error('Invalid URL')
 }
 
 function getProviderColor (provider: string): string {
-  if (provider === 'outplayed') return '#ff0000'
+  if (provider === 'outplayed') return '#E0004B'
+  if (provider === 'discord') return '#5865F2'
   throw new Error('Invalid provider')
 }
 
-export function getUrlData (url: string): IUrlData {
-  const videoId = getVideoProviderId(url)
-  const provider = getProvider(url)
+export function isValidProvider (provider: string): boolean {
+  if (provider === 'outplayed') return true
+  if (provider === 'discord') return true
+  return false
+}
+
+export async function getUrlData (url: string): Promise<IUrlData> {
+  const videoId = await getVideoProviderId(url)
+  const provider = await getProvider(url)
   const providerColor = getProviderColor(provider)
 
   return {
@@ -37,17 +48,11 @@ export function getUrlData (url: string): IUrlData {
   }
 }
 
-export function getProviderBaseUrl (provider: string): string {
-  if (provider === 'outplayed') return 'https://outplayed.tv/media/'
-  throw new Error('Invalid provider')
-}
-
-export function getFullUrl (provider: string, providerId: string): string {
-  return `${getProviderBaseUrl(provider)}${providerId}`
-}
-
-export function getDownloadData (provider: string, providerId: string): Promise<{ downloadUrl: string; duration: number } | Error> {
-  if (provider === 'outplayed') return getOutplayedDownloadData(providerId)
+export async function getDownloadData (objectId: string): Promise<{ downloadUrl: string; duration: number } | Error> {
+  const clipObject = getClipObject(objectId)
+  if (clipObject instanceof Error) return clipObject
+  if (clipObject.provider === 'outplayed') return await getOutplayedDownloadData(objectId)
+  if (clipObject.provider === 'discord') return await getDiscordDownloadData(objectId)
   throw new Error('Invalid provider')
 }
 
@@ -62,6 +67,15 @@ export async function downloadClip (clipObjectId: string, logMessage?: Message):
     if (outplayedDownloadedClip instanceof Error) return outplayedDownloadedClip
     const savedDownloadData = updateClipObject(clipObjectId, {
       downloadTimer: outplayedDownloadedClip
+    })
+    if (savedDownloadData instanceof Error) return savedDownloadData
+    return
+  }
+  if (clipObject.provider === 'discord') {
+    const discordDownloadedClip = await discordDownloadClip(clipObjectId, clipVideoSavePath, logMessage)
+    if (discordDownloadedClip instanceof Error) return discordDownloadedClip
+    const savedDownloadData = updateClipObject(clipObjectId, {
+      downloadTimer: discordDownloadedClip
     })
     if (savedDownloadData instanceof Error) return savedDownloadData
     return

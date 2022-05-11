@@ -9,32 +9,28 @@ const timer = {
   lastUpdate: 0
 }
 
-const outplayedBaseUrl = 'https://outplayed.tv/media/'
+const discordBaseUrl = 'https://cdn.discordapp.com/attachments/'
 
-export async function isOutplayedValidUrl (message: string): Promise<boolean> {
-  if (!message.includes(outplayedBaseUrl)) return false
+export async function isDiscordValidUrl (message: string): Promise<boolean> {
+  if (!message.includes(discordBaseUrl)) return false
   const urlResponse = await axios.get(message).catch(error => { return new Error(error) })
   if (urlResponse instanceof Error) return false
   if (urlResponse.status !== 200) return false
-  if (!urlResponse.data.includes('<video src=')) return false
   return true
 }
 
-export function getOutplayedVideoId (url: string): string {
-  const outplayedClipId = url.split(outplayedBaseUrl)[1].split(' ')[0]
-  return outplayedClipId
+export function getDiscordVideoId (url: string): string {
+  const discordClipId = url.split(discordBaseUrl)[1].split('/')[1]
+  return discordClipId
 }
 
-export async function getOutplayedDownloadData (objectId: string): Promise<{ downloadUrl: string; duration: number } | Error> {
+export async function getDiscordDownloadData (objectId: string): Promise<{ downloadUrl: string; duration: number } | Error> {
   const clipObject = getClipObject(objectId)
   if (clipObject instanceof Error) return clipObject
-  const videoUrl = clipObject.url
-  const html = await axios.get(videoUrl).catch(error => { return new Error(error) })
+  const downloadUrl = clipObject.url
+  const html = await axios.get(downloadUrl).catch(error => { return new Error(error) })
   if (html instanceof Error) return new Error(`Error getting HTML: ${html}`)
   if (html.status !== 200) return new Error(`Error getting video data: ${html.status}`)
-  const htmlData = html.data
-  const downloadUrl: string = htmlData.match(/<video src="(.*?)"/)[1]
-  if (downloadUrl === undefined) return new Error('Error getting download URL')
   const duration = await getVideoDurationInSeconds(downloadUrl)
   return {
     downloadUrl,
@@ -42,20 +38,20 @@ export async function getOutplayedDownloadData (objectId: string): Promise<{ dow
   }
 }
 
-export async function outplayedDownloadClip (clipObjectId: string, clipVideoSavePath: string, logMessage?: Message): Promise<number | Error> {
+export async function discordDownloadClip (clipObjectId: string, clipVideoSavePath: string, logMessage?: Message): Promise<number | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
     embeds: [
       new MessageEmbed()
-        .setTitle('Download do clipe - Outplayed!')
+        .setTitle('Download do clipe - Discord!')
         .addField('Clipe ID:', `[${clipObjectId}](${clipObject.url})`)
         .addField('Progresso:', 'Iniciando...')
         .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
     ]
   }).catch(console.error)
   const logMessageText = (progress: string) => {
-    return `Baixando clipe do Outplayed: ${clipObjectId} // Progresso: ${progress}`
+    return `Baixando clipe do Discord: ${clipObjectId} // Progresso: ${progress}`
   }
   if (!clipObject.downloadUrl) return new Error(`Clip download url not found for: ${clipObjectId}`)
   const dateStart = new Date().getTime()
@@ -76,7 +72,7 @@ export async function outplayedDownloadClip (clipObjectId: string, clipVideoSave
       await logMessage?.edit({
         embeds: [
           new MessageEmbed()
-            .setTitle('Download do clipe - Outplayed!')
+            .setTitle('Download do clipe - Discord!')
             .addField('Clipe ID:', `[${clipObjectId}](${clipObject.url})`)
             .addField('Progresso:', `${(progress.curr / progress.total * 100).toFixed(2)}%`)
             .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
@@ -94,7 +90,7 @@ export async function outplayedDownloadClip (clipObjectId: string, clipVideoSave
   await logMessage?.edit({
     embeds: [
       new MessageEmbed()
-        .setTitle('Download do clipe - Outplayed!')
+        .setTitle('Download do clipe - Discord!')
         .addField('Clipe ID:', `[${clipObjectId}](${clipObject.url})`)
         .addField('Progresso:', 'Finalizado!')
         .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })

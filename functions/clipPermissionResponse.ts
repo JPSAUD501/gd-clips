@@ -2,6 +2,7 @@ import { MessageActionRow, MessageButton, MessageEmbed, ButtonInteraction, Messa
 import { newCustomId, readCustomId } from './common'
 import { getClipObject, updateClipObject } from './clipObject'
 import { client, config } from '../constants'
+import { isValidProvider } from './providers'
 
 export async function clipPermissionResponse (interaction: ButtonInteraction): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
@@ -22,7 +23,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) throw clipObject
 
-  if (clipObject.provider !== 'outplayed') throw new Error('Unknown clip provider!')
+  if (!isValidProvider(clipObject.provider)) throw new Error('Unknown clip provider!')
 
   if (!(interaction.message instanceof Message)) throw new Error('Invalid interaction message!')
   await interaction.message.delete().catch(console.error)

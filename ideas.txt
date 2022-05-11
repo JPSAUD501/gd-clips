@@ -1,8 +1,6 @@
-TODO: Compiled
-TODO: Change Categories and make them more dynamic
-TODO: Add video tittle question in modal when user aproves a clip
-TODO: Add video tittle question in modal when mod aproves a clip (Empty to use user tittle)
-TODO: A way to check most popular clips in Instagram
-TODO: Instagram Stories
-TODO: Maybe post in Twitter
-TODO: Check if the link is working before send author request
+4 TODO: Compiled
+3 TODO: Change Categories and make them more dynamic
+3 TODO: A way to check most popular clips in Instagram
+2 TODO: Instagram Stories
+2 TODO: Maybe post in Twitter
+1 TODO: Random vido tittle

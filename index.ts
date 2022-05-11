@@ -19,15 +19,24 @@ async function startBot () {
   client.on('messageCreate', async message => {
     if (message.author.bot) return
     const messageArray = message.content.replace('\n', ' ').split(' ')
-    console.log(messageArray)
     for (const messageWord of messageArray) {
-      if (!isValidUrl(messageWord)) continue
-      const clipObject = getClipObjectOrCreateOne(messageWord, message.author.id, message.channel.id)
+      console.log(messageWord)
+      if (!await isValidUrl(messageWord)) continue
+      const clipObject = await getClipObjectOrCreateOne(messageWord, message.author.id, message.channel.id)
+      if (clipObject instanceof Error) return console.error(clipObject)
+      if (message.channel.id !== config['CLIPS-CHANNEL-ID']) continue
+      console.log('New clip message!')
+      if (await isValidUrl(messageWord)) await newClip(message, messageWord)
+    }
+    message.attachments.forEach(async attachment => {
+      console.log(attachment.url)
+      if (!await isValidUrl(attachment.url)) return
+      const clipObject = await getClipObjectOrCreateOne(attachment.url, message.author.id, message.channel.id)
       if (clipObject instanceof Error) return console.error(clipObject)
       if (message.channel.id !== config['CLIPS-CHANNEL-ID']) return
       console.log('New clip message!')
-      if (isValidUrl(messageWord)) newClip(message, messageWord)
-    }
+      if (await isValidUrl(attachment.url)) await newClip(message, attachment.url)
+    })
   })
 
   client.on('interactionCreate', async interaction => {
@@ -35,16 +44,16 @@ async function startBot () {
     console.log('New interaction!')
     const interactionData = readCustomId(interaction.customId)
     console.log('New interaction:', interactionData)
-    if (interactionData.type === 'RP') clipPermissionResponse(interaction).catch(console.error)
-    if (interactionData.type === 'MP') clipApprovalResponse(interaction).catch(console.error)
-    if (interactionData.type === 'MRQSAM') sendModalResponseRequestSAM(interaction).catch(console.error)
+    if (interactionData.type === 'RP') await clipPermissionResponse(interaction).catch(console.error)
+    if (interactionData.type === 'MP') await clipApprovalResponse(interaction).catch(console.error)
+    if (interactionData.type === 'MRQSAM') await sendModalResponseRequestSAM(interaction).catch(console.error)
   })
 
   client.on('modalSubmit', async modal => {
     console.log('New modal response!')
     const interactionData = readCustomId(modal.customId)
     console.log(interactionData)
-    if (interactionData.type === 'MRPSAM') sendAuthorMessage(modal).catch(console.error)
+    if (interactionData.type === 'MRPSAM') await sendAuthorMessage(modal).catch(console.error)
   })
 }
 startBot() // Start the bot

@@ -5,9 +5,9 @@ import { rootDbPath } from '../constants'
 import path from 'path'
 import YAML from 'yaml'
 
-export function getClipObjectId (url: string): string | Error {
-  if (!isValidUrl(url)) return new Error('Invalid URL')
-  const urlData = getUrlData(url)
+export async function getClipObjectId (url: string): Promise<string | Error> {
+  if (!await isValidUrl(url)) return new Error('Invalid URL')
+  const urlData = await getUrlData(url)
   return `${urlData.provider}@${urlData.providerId}`
 }
 
@@ -25,9 +25,9 @@ export function getClipObjectFolder (clipObjectId: string): string | Error {
   return clipObjectFolder
 }
 
-export function createClipObject (url: string, authorId: string, channelId: string): IClipObject | Error {
-  const urlData = getUrlData(url)
-  const clipObjectId = getClipObjectId(url)
+export async function createClipObject (url: string, authorId: string, channelId: string): Promise<IClipObject | Error> {
+  const urlData = await getUrlData(url)
+  const clipObjectId = await getClipObjectId(url)
   if (clipObjectId instanceof Error) return clipObjectId
   const clipObject: IClipObject = {
     objectId: clipObjectId,
@@ -53,6 +53,7 @@ export function updateClipObject (clipObjectId: string, { ...options }): void | 
   if (clipObject instanceof Error) return clipObject
   const newClipObject = { ...clipObject, ...options }
   if (!checkIClipObject(newClipObject)) return new Error(`IClipObject is invalid for: ${newClipObject}`)
+  if (newClipObject.objectId !== clipObjectId) return new Error(`IClipObject.objectId is invalid for: ${newClipObject}`)
   const savedClipObject = saveClipObject(newClipObject)
   if (savedClipObject instanceof Error) return savedClipObject
 }
@@ -63,16 +64,17 @@ export function getClipObject (clipObjectId: string): IClipObject | Error {
   if (!fs.existsSync(clipObjectPath)) return new Error('Clip object not found')
   const clipObject = YAML.parse(fs.readFileSync(clipObjectPath, 'utf8')) as IClipObject
   if (!checkIClipObject(clipObject)) return new Error('Invalid clip object')
+  if (clipObject.objectId !== clipObjectId) return new Error('Clip object id mismatch')
   return clipObject
 }
 
-export function getClipObjectOrCreateOne (url: string, userId: string, channelId: string): IClipObject | Error {
-  const clipObjectId = getClipObjectId(url)
+export async function getClipObjectOrCreateOne (url: string, userId: string, channelId: string): Promise<Error | IClipObject> {
+  const clipObjectId = await getClipObjectId(url)
   if (clipObjectId instanceof Error) return new Error('clipObjectId is not valid')
   const clipObjectPath = getClipObjectPath(clipObjectId)
   if (clipObjectPath instanceof Error) return clipObjectPath
   if (!fs.existsSync(clipObjectPath)) {
-    const clipObject = createClipObject(url, userId, channelId)
+    const clipObject = await createClipObject(url, userId, channelId)
     if (clipObject instanceof Error) return clipObject
     saveClipObject(clipObject)
   }
