@@ -62,7 +62,7 @@ export async function newClip (message: Message, url: string): Promise<void> {
   const embedReply = new MessageEmbed()
     .setColor(`${urlData.providerColor}` as ColorResolvable)
     .setTitle(`${message.author.username} você deseja que esse seu clipe apareça no Instagram e canal do YouTube do Grupo Disparate?`)
-    .addField('Autor:', `${message.author}`, true)
+    .addField('Compartilhado por:', `${message.author}`, true)
     .addField('Clipe:', `[Clique aqui para ver](${clipObject.url})`, true)
     .setFooter({ text: `Novo clipe de ${message.author.username} no ${urlData.provider.toUpperCase()}.` })
 

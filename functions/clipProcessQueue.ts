@@ -2,6 +2,7 @@ import { Message, MessageEmbed, User } from 'discord.js'
 import { IQueueObject } from '../interfaces'
 import { processClip } from './processClip'
 import { config } from '../constants'
+import { getClipObject } from './clipObject'
 
 const queue: IQueueObject[] = []
 const inProcess: IQueueObject[] = []
@@ -16,9 +17,9 @@ export async function startQueueProcessing (): Promise<void> {
     const queueObject = queue.shift()
     if (!queueObject) return
     inProcess.push(queueObject)
-    const { clipObjectId, sharerUser, sharerName, logMessage } = queueObject
+    const { clipObjectId, logMessage } = queueObject
     // --> Process Clip
-    await processClip(clipObjectId, sharerUser, sharerName, logMessage)
+    await processClip(clipObjectId, logMessage)
     // <--
     const clipProcessDone = queueClipProcessDone(clipObjectId)
     if (clipProcessDone instanceof Error) throw clipProcessDone
@@ -29,9 +30,6 @@ export async function addToQueue (clipObjectId: string, clipUrl?: string, logMes
   if (!sharerUser && !clipSharerName) return new Error('No sharer user or sharer name found!')
   queue.push({
     clipObjectId,
-    clipUrl: clipUrl || undefined,
-    sharerUser: sharerUser || undefined,
-    sharerName: clipSharerName || undefined,
     logMessage: logMessage || undefined
   })
   const updatedWaitingClipsLogMessages = await updateWaitingClipsLogMessages()
@@ -39,23 +37,25 @@ export async function addToQueue (clipObjectId: string, clipUrl?: string, logMes
 }
 
 async function updateWaitingClipsLogMessages (): Promise<void | Error> {
-  for (const clipObject of queue) {
-    if (!clipObject.logMessage) continue
-    if (!clipObject.sharerUser && !clipObject.sharerName) return new Error('No sharer user or sharer name found!')
-    const sharerNameString = clipObject.sharerName || clipObject.sharerUser?.username
+  for (const queueObject of queue) {
+    if (!queueObject.logMessage) continue
+    const { clipObjectId } = queueObject
+    const clipObject = getClipObject(clipObjectId)
+    if (clipObject instanceof Error) return new Error(`Clip object not found for: ${clipObjectId}`)
+    const sharerNameString = clipObject.sharerDiscordName
     if (!sharerNameString) return new Error('No sharer name found!')
     const queueLength = queue.length
     const indexPositionInQueue = queue.findIndex(clip => {
-      return clip.clipObjectId === clipObject.clipObjectId
+      return clip.clipObjectId === queueObject.clipObjectId
     })
-    if (indexPositionInQueue === -1) return new Error(`Clip not found in queue: ${clipObject.clipObjectId}`)
+    if (indexPositionInQueue === -1) return new Error(`Clip not found in queue: ${queueObject.clipObjectId}`)
     const positionInQueue = indexPositionInQueue + 1
-    await clipObject.logMessage.edit({
+    await queueObject.logMessage.edit({
       embeds: [
         new MessageEmbed()
           .setTitle('Clipe na fila de processamento!')
-          .addField('Clipe ID:', `[${clipObject.clipObjectId}](${clipObject.clipUrl})`)
-          .addField('Autor do clipe: ', `${sharerNameString}`)
+          .addField('Clipe ID:', `[${clipObject.objectId}](${clipObject.url})`)
+          .addField('Compartilhado por: ', `${sharerNameString}`)
           .addField('Posição na fila de processamento:', `${positionInQueue}/${queueLength}`)
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]

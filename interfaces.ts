@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { Message, User } from 'discord.js'
+import { Message } from 'discord.js'
 import { checker } from 'ts-data-checker'
 
 export interface IRequestPermission {
@@ -59,9 +59,6 @@ export function checkIUrlData (obj: any): boolean {
 
 export interface IQueueObject {
   clipObjectId: string,
-  clipUrl?: string,
-  sharerUser?: User,
-  sharerName?: string,
   logMessage?: Message
 }
 export function checkIQueueObject (obj: any): boolean {
@@ -75,6 +72,7 @@ export interface IClipObject {
   providerId: string,
   url: string,
   sharerDiscordId: string,
+  sharerDiscordName: string,
   firstApearDate: string,
   firstApearChannelId: string,
   postedOnClipsChannel?: boolean,

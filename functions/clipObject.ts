@@ -1,7 +1,7 @@
 import { checkIClipObject, IClipObject } from '../interfaces'
 import { getUrlData, isValidUrl } from './providers'
 import fs from 'fs'
-import { rootDbPath } from '../constants'
+import { client, rootDbPath } from '../constants'
 import path from 'path'
 import YAML from 'yaml'
 
@@ -29,12 +29,15 @@ export async function createClipObject (url: string, sharerId: string, channelId
   const urlData = await getUrlData(url)
   const clipObjectId = await getClipObjectId(url)
   if (clipObjectId instanceof Error) return clipObjectId
+  const sharerUser = await client.users.fetch(sharerId).catch(console.error)
+  if (!sharerUser) return new Error('Sharer user not found')
   const clipObject: IClipObject = {
     objectId: clipObjectId,
     provider: urlData.provider,
     providerId: urlData.providerId,
     url: url,
     sharerDiscordId: sharerId,
+    sharerDiscordName: sharerUser.username,
     firstApearDate: new Date().toJSON(),
     firstApearChannelId: channelId
   }

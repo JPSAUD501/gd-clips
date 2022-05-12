@@ -6,7 +6,7 @@ import path from 'path'
 import { config } from '../../constants'
 import { getClipObject, updateClipObject, getClipObjectFolder } from '../clipObject'
 
-export async function uploadToYTClip (clipObjectId: string, sharerName: string, authorName?: string, logMessage?: Message): Promise<string | Error> {
+export async function uploadToYTClip (clipObjectId: string, logMessage?: Message): Promise<string | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -25,7 +25,7 @@ export async function uploadToYTClip (clipObjectId: string, sharerName: string, 
   if (!fs.readFileSync(clipVideoPath)) return new Error(`Clip edited YT not found for: ${clipObjectId}`)
   if (!fs.readFileSync(clipThumbnailPath)) return new Error(`Clip thumbnail not found for: ${clipObjectId}`)
   if (!clipObject.category) return new Error('Clip category not found')
-  const clipTitle = `${sharerName} - ${clipObject.category}`
+  const clipTitle = `${clipObject.sharerDiscordName} - ${clipObject.category}`
   const clipDescription: string = config['YT-CLIP-DESCRIPTION']
   if (!clipDescription) return new Error('Default description not found')
   const clipTags: string[] = config['DEFAULT-TAGS']
@@ -56,8 +56,8 @@ export async function uploadToYTClip (clipObjectId: string, sharerName: string, 
     requestBody: {
       snippet: {
         title: clipTitle,
-        description: `Enviado por ${sharerName} - ${clipObject.category}
-        Autor: ${(authorName || sharerName)}
+        description: `Enviado por ${clipObject.sharerDiscordName} - ${clipObject.category}
+        Autor: ${(clipObject.providerChannelName || clipObject.sharerDiscordName)}
         ${clipDescription}`, // Check <br> or \n
         tags: clipTags,
         // categoryId: // Solo clip YT category ID,

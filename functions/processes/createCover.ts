@@ -7,7 +7,7 @@ import { Message, MessageEmbed } from 'discord.js'
 const extractFrame = require('ffmpeg-extract-frame')
 const coverHtml = fs.readFileSync('./media/cover.html', 'utf8')
 
-export async function createCover (clipObjectId: string, sharerName: string, authorName?: string, logMessage?: Message): Promise<void | Error> {
+export async function createCover (clipObjectId: string, logMessage?: Message): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -41,9 +41,9 @@ export async function createCover (clipObjectId: string, sharerName: string, aut
   })
   if (!fs.existsSync(previewImgPath)) return new Error(`Preview image not found for: ${previewImgPath}`)
   const coverPath = path.join(clipObjectFolder, 'cover.jpg')
-  const sharerVisibility: string = authorName ? 'true' : 'false'
-  const sharerNameString = sharerName.substring(0, maxNameThumbnailLength)
-  const authorNameString = authorName?.substring(0, maxNameThumbnailLength) || sharerNameString
+  const sharerVisibility: string = clipObject.providerChannelName ? 'true' : 'false'
+  const sharerNameString = clipObject.sharerDiscordName.substring(0, maxNameThumbnailLength)
+  const authorNameString = clipObject.providerChannelName?.substring(0, maxNameThumbnailLength) || sharerNameString
 
   const previewImg = fs.readFileSync(previewImgPath)
   const base64PreviewImg = previewImg.toString('base64')

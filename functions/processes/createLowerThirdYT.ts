@@ -6,7 +6,7 @@ import HtmlToImg from 'node-html-to-image'
 import { Message, MessageEmbed } from 'discord.js'
 const lowerThirdYTHtml = fs.readFileSync('./media/lowerThirdYT.html', 'utf8')
 
-export async function createLowerThirdYT (clipObjectId: string, sharerName: string, authorName?: string, logMessage?: Message): Promise<void | Error> {
+export async function createLowerThirdYT (clipObjectId: string, logMessage?: Message): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -22,9 +22,9 @@ export async function createLowerThirdYT (clipObjectId: string, sharerName: stri
   const clipObjectFolder = getClipObjectFolder(clipObjectId)
   if (clipObjectFolder instanceof Error) return clipObjectFolder
   const lowerThirdYTPath = path.join(clipObjectFolder, 'lowerThirdYT.png')
-  const sharerVisibility: string = authorName ? 'true' : 'false'
-  const sharerNameString = sharerName.substring(0, maxNameLowerThirdLength)
-  const authorNameString = authorName?.substring(0, maxNameLowerThirdLength) || sharerNameString
+  const sharerVisibility: string = clipObject.providerChannelName ? 'true' : 'false'
+  const sharerNameString = clipObject.sharerDiscordName.substring(0, maxNameLowerThirdLength)
+  const authorNameString = clipObject.providerChannelName?.substring(0, maxNameLowerThirdLength) || sharerNameString
   await logMessage?.edit({
     embeds: [
       new MessageEmbed()

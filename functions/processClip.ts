@@ -6,8 +6,9 @@ import { createLowerThirdIG } from './processes/createLowerThirdIG'
 import { editClipIG } from './processes/editClipIG'
 import { uploadToIGClip } from './processes/uploadToIGClip'
 import { getClipObject } from './clipObject'
+import { client } from '../constants'
 
-const defaultProcess = async function (clipObjectId: string, sharerUser?: User, clipSharerName?: string, logMessage?: Message): Promise<void | Error> {
+const defaultProcess = async function (clipObjectId: string, sharerUser?: User, logMessage?: Message): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -19,15 +20,9 @@ const defaultProcess = async function (clipObjectId: string, sharerUser?: User, 
         .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
     ]
   }).catch(console.error)
-  // Set sharer name
-  if (!sharerUser && !clipSharerName) return new Error('No sharer user or sharer name found!')
-  const sharerName = clipSharerName || sharerUser?.username
-  if (!sharerName) return new Error('No sharer name found!')
   // Clip info data
   const savedInfoData = await saveInfoData(clipObjectId)
   if (savedInfoData instanceof Error) return savedInfoData
-  // Set author name
-  const authorName = clipObject.providerChannelName
   // Clip download data
   const savedDownloadData = await saveDownloadData(clipObjectId)
   if (savedDownloadData instanceof Error) return savedDownloadData
@@ -38,16 +33,16 @@ const defaultProcess = async function (clipObjectId: string, sharerUser?: User, 
   const downloadedClip = await downloadClip(clipObjectId, logMessage)
   if (downloadedClip instanceof Error) return downloadedClip
   // Create cover
-  const createdCover = await createCover(clipObjectId, sharerName, authorName, logMessage)
+  const createdCover = await createCover(clipObjectId, logMessage)
   if (createdCover instanceof Error) return createdCover
   // Create lower third IG
-  const createdLowerThirdIG = await createLowerThirdIG(clipObjectId, sharerName, authorName, logMessage)
+  const createdLowerThirdIG = await createLowerThirdIG(clipObjectId, logMessage)
   if (createdLowerThirdIG instanceof Error) return createdLowerThirdIG
   // Edit IG
   const editedClipIG = await editClipIG(clipObjectId, logMessage)
   if (editedClipIG instanceof Error) return editedClipIG
   // Upload to IG
-  const uploadedClipIG = await uploadToIGClip(clipObjectId, sharerName, authorName, logMessage)
+  const uploadedClipIG = await uploadToIGClip(clipObjectId, logMessage)
   if (uploadedClipIG instanceof Error) return uploadedClipIG
 
   await sharerUser?.send({
@@ -74,8 +69,11 @@ const processes = {
   defaultProcess
 }
 
-export async function processClip (clipObjectId: string, sharerUser?: User, clipSharerName?: string, logMessage?: Message): Promise<void> {
-  const processed = await processes.defaultProcess(clipObjectId, sharerUser, clipSharerName, logMessage)
+export async function processClip (clipObjectId: string, logMessage?: Message): Promise<void> {
+  const clipObject = getClipObject(clipObjectId)
+  if (clipObject instanceof Error) return console.error(clipObject)
+  const sharerUser = await client.users.fetch(clipObject.sharerDiscordId).catch(() => undefined)
+  const processed = await processes.defaultProcess(clipObjectId, sharerUser, logMessage)
   if (processed instanceof Error) {
     console.error(processed.message)
     await logMessage?.edit({

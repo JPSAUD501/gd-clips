@@ -30,7 +30,7 @@ export async function isTwitchValidUrl (message: string): Promise<boolean> {
 
 export function getTwitchVideoId (url: string): string {
   if (twitchBaseUrl.clipsTwitch.every(part => url.includes(part))) return url.split(twitchBaseUrl.clipsTwitch[0])[1].slice(url.split(twitchBaseUrl.clipsTwitch[0])[1].indexOf('-') + 1)
-  if (!twitchBaseUrl.twitchTv.every(part => url.includes(part))) return url.split(twitchBaseUrl.twitchTv[1])[1].slice(url.split(twitchBaseUrl.twitchTv[1])[1].indexOf('-') + 1)
+  if (twitchBaseUrl.twitchTv.every(part => url.includes(part))) return url.split(twitchBaseUrl.twitchTv[1])[1].slice(url.split(twitchBaseUrl.twitchTv[1])[1].indexOf('-') + 1)
   return url.split(twitchBaseUrl.mTwitch[1])[1].slice(url.split(twitchBaseUrl.mTwitch[1])[1].indexOf('-') + 1)
 }
 

@@ -37,7 +37,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
 
   const embed = new MessageEmbed()
     .setTitle(`Um novo clipe de ${interaction.user.username} aguarda aprovação!`)
-    .addField('Autor:', `${interaction.user}`, true)
+    .addField('Compartilhado por:', `${interaction.user}`, true)
     .addField('Clipe:', `[Clique aqui para ver](${clipObject.url})`, true)
     .addField('Verifique se o clipe atende a todos os requisitos:', config['CLIP-REQUIREMENTS'].join('\n'))
     .setFooter({ text: `Novo clipe de ${interaction.user.username} no ${clipObject.provider.toUpperCase()}.` })
@@ -75,7 +75,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
           clipCategory: 'TRASH'
         })),
       new MessageButton()
-        .setLabel('Enviar mensagem para autor!')
+        .setLabel('Enviar mensagem para o compartilhador!')
         .setStyle('PRIMARY')
         .setCustomId(newCustomId({
           type: 'MRQSAM',

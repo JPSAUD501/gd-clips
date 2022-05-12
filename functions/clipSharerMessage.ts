@@ -16,7 +16,7 @@ export async function sendModalResponseRequestSAM (interaction: ButtonInteractio
       clipSharerDiscordId: interactionData.clipSharerDiscordId,
       clipObjectId: interactionData.clipObjectId
     }))
-    .setTitle('Notificação para o autor do clipe!')
+    .setTitle('Notificação para o compartilhador do clipe!')
     .addComponents(
       new TextInputComponent()
         .setCustomId('MESSAGE')
@@ -43,7 +43,7 @@ export async function sendSharerMessage (modal: ModalSubmitInteraction): Promise
   if (!(logChannel instanceof TextChannel)) return new Error('Log channel is not a text channel!')
   if (!logChannel) return new Error('Bot log channel not found!')
   let embed: MessageEmbed = new MessageEmbed()
-    .setTitle('Notificação para o autor do clipe!')
+    .setTitle('Notificação para o compartilhador do clipe!')
   if (interactionData.status === 'STB') {
     embed = new MessageEmbed()
       .setTitle('Mensagem da moderação do GD!')
@@ -66,7 +66,7 @@ export async function sendSharerMessage (modal: ModalSubmitInteraction): Promise
       .setFooter({ text: `Mensagem enviada por ${modal.user.username}` })
   }
   await logChannel.send({
-    content: `Uma mensagem em relação ao clipe de ID: ${interactionData.clipObjectId} foi enviada para o autor do clipe **"${clipSharer.username}" - "${clipSharer}"**!`,
+    content: `Uma mensagem em relação ao clipe de ID: ${interactionData.clipObjectId} foi enviada para o compartilhador do clipe **"${clipSharer.username}" - "${clipSharer}"**!`,
     embeds: [embed]
   }).catch(console.error)
   await clipSharer.send({ embeds: [embed] }).catch(console.error)
