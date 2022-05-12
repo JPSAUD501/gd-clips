@@ -4,7 +4,7 @@ import path from 'path'
 import { config, igClient } from '../../constants'
 import { getClipObject, updateClipObject, getClipObjectFolder } from '../clipObject'
 
-export async function uploadToIGClip (clipObjectId: string, authorName: string, logMessage?: Message): Promise<string | Error> {
+export async function uploadToIGClip (clipObjectId: string, sharerName: string, authorName?: string, logMessage?: Message): Promise<string | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -38,7 +38,7 @@ export async function uploadToIGClip (clipObjectId: string, authorName: string, 
   const publishResult = await igClient.publish.video({
     video: fs.readFileSync(videoPath),
     coverImage: fs.readFileSync(coverPath),
-    caption: `${authorName} - ${clipObject.category} // ${clipDescription}`
+    caption: `Enviado por ${sharerName} - ${clipObject.category} // Autor: ${(authorName || sharerName)} // ${clipDescription}`
   }).catch(console.error)
   if (!publishResult) return new Error('Error publishing video')
   const savedClipObject = updateClipObject(clipObject.objectId, {

@@ -7,35 +7,47 @@
     />
   </head>
   <body>
-    <img class="v101_24" src="{{previewImg}}">
-    <div class="v101_23"></div>
-    <div class="v101_25"></div>
-    <div class="v101_26"></div>
-    <div class="v101_27"></div>
-    <div class="v101_28"></div>
-    <span class="v101_29">{{name}}</span>
+    <div class="screen">
+      <img class="img" src="{{previewImg}}">
+      <div class="background"></div>
+      <div class="logoBackground"></div>
+      <div class="logo"></div>
+      <div class="authorBackground"></div>
+      <span class="authorName">{{authorName}}</span>
+      <div id="sharer-{{sharerVisibility}}">
+        <div class="sharerBackground"></div>
+        <span class="sharerName">Enviado por {{sharerName}}</span>
+      </div>
+    </div>
   </body>
 </html>
 <br /><br />
 <style>
   * {
     box-sizing: border-box;
+    /* border: 1px solid red; */
   }
   body {
     width: 1920px;
     height: 1080px;
+    position: absolute;
   }
-  .v101_23 {
-    width: 2112px;
-    height: 1188px;
+  .screen {
+    width: 1920px;
+    height: 1080px;
+    position: absolute;
+  }
+  .background {
+    width: 1920px;
+    height: 1080px;
     background: rgba(52, 29, 191, 1);
     opacity: 0.20;
+    top: 0;
+    left: 0;
     position: absolute;
-    top: -54px;
-    left: -96px;
     overflow: hidden;
   }
-  .v101_24 {
+  .img {
     width: 2112px;
     height: 1188px;
     background-repeat: no-repeat;
@@ -48,7 +60,7 @@
     overflow: hidden;
     filter: blur(4px);
   }
-  .v101_26 {
+  .logoBackground {
     width: 302px;
     height: 380px;
     background: rgba(52, 29, 191, 1);
@@ -58,10 +70,10 @@
     left: 84px;
     overflow: hidden;
   }
-  .v101_27 {
+  .logo {
     width: 213px;
     height: 179px;
-    background: url("https://raw.githubusercontent.com/grupodisparate/FILES/master/icon.png");
+    background: url("https://raw.githubusercontent.com/grupodisparate/FILES/master/gd.png");
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
@@ -71,7 +83,7 @@
     left: 129px;
     overflow: hidden;
   }
-  .v101_28 {
+  .authorBackground {
     width: 1000px;
     height: 155px;
     background: rgba(52, 29, 191, 1);
@@ -81,15 +93,45 @@
     left: 0px;
     overflow: hidden;
   }
-  .v101_29 {
+  .authorName {
     width: 1000px;
+    height: 145px;
     color: rgba(255, 255, 255, 1);
     position: absolute;
-    top: 783px;
+    top: 781px;
     left: 0px;
     font-family: Poppins;
     font-weight: bolder;
     font-size: 96px;
+    opacity: 1;
+    text-align: center;
+  }
+  #sharer-true {
+    visibility: visible;
+  }
+  #sharer-false {
+    visibility: hidden;
+  }
+  .sharerBackground {
+    width: 900px;
+    height: 75px;
+    background: rgba(52, 29, 191, 1);
+    opacity: 1;
+    position: absolute;
+    top: 950px;
+    left: 0px;
+    overflow: hidden;
+  }
+  .sharerName {
+    width: 900px;
+    height: 65px;
+    color: rgba(255, 255, 255, 1);
+    position: absolute;
+    top: 955px;
+    left: 0px;
+    font-family: Poppins;
+    font-weight: bolder;
+    font-size: 45px;
     opacity: 1;
     text-align: center;
   }

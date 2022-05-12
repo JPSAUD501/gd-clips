@@ -5,8 +5,8 @@ import { checker } from 'ts-data-checker'
 export interface IRequestPermission {
   type: 'RP',
   clipObjectId: string,
-  clipAuthorDiscordId: string,
-  clipAuthorResponse: 'Y' | 'N'
+  clipSharerDiscordId: string,
+  clipSharerResponse: 'Y' | 'N'
 }
 export function checkIRequestPermission (obj: any): boolean {
   const interfaceChecker = checker('IRequestPermission', './interfaces').checkJson
@@ -18,32 +18,32 @@ export interface IModPermission {
   clipObjectId: string,
   modResponse: 'Y' | 'N',
   clipCategory: 'FUNNY' | 'EPIC' | 'TRASH',
-  clipAuthorDiscordId: string
+  clipSharerDiscordId: string
 }
 export function checkIModPermission (obj: any): boolean {
   const interfaceChecker = checker('IModPermission', './interfaces').checkJson
   return interfaceChecker(JSON.stringify(obj))
 }
 
-export interface IModalRequestSendAuthorMessage {
+export interface IModalRequestSendSharerMessage {
   type: 'MRQSAM',
   status: 'STB' | 'A' | 'D',
-  clipAuthorDiscordId: string,
+  clipSharerDiscordId: string,
   clipObjectId: string,
 }
-export function checkISendAuthorMessage (obj: any): boolean {
-  const interfaceChecker = checker('IModalRequestSendAuthorMessage', './interfaces').checkJson
+export function checkISendSharerMessage (obj: any): boolean {
+  const interfaceChecker = checker('IModalRequestSendSharerMessage', './interfaces').checkJson
   return interfaceChecker(JSON.stringify(obj))
 }
 
-export interface IModalResponseSendAuthorMessage {
+export interface IModalResponseSendSharerMessage {
   type: 'MRPSAM',
   status: 'STB' | 'A' | 'D',
-  clipAuthorDiscordId: string,
+  clipSharerDiscordId: string,
   clipObjectId: string,
 }
-export function checkIModalResponseSendAuthorMessage (obj: any): boolean {
-  const interfaceChecker = checker('IModalResponseSendAuthorMessage', './interfaces').checkJson
+export function checkIModalResponseSendSharerMessage (obj: any): boolean {
+  const interfaceChecker = checker('IModalResponseSendSharerMessage', './interfaces').checkJson
   return interfaceChecker(JSON.stringify(obj))
 }
 
@@ -60,8 +60,8 @@ export function checkIUrlData (obj: any): boolean {
 export interface IQueueObject {
   clipObjectId: string,
   clipUrl?: string,
-  authorUser?: User,
-  authorName?: string,
+  sharerUser?: User,
+  sharerName?: string,
   logMessage?: Message
 }
 export function checkIQueueObject (obj: any): boolean {
@@ -74,7 +74,7 @@ export interface IClipObject {
   provider: string,
   providerId: string,
   url: string,
-  authorDiscordId: string,
+  sharerDiscordId: string,
   firstApearDate: string,
   firstApearChannelId: string,
   postedOnClipsChannel?: boolean,
@@ -84,6 +84,8 @@ export interface IClipObject {
   downloadUrl?: string,
   duration?: number,
   downloadTimer?: number,
+  providerChannelName?: string,
+  providerClipName?: string,
   youtubePostDate?: string,
   instagramPostDate?: string
 }

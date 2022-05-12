@@ -9,7 +9,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
   if (interactionData.type !== 'RP') return
   const clipObjectId = interactionData.clipObjectId
 
-  if (interactionData.clipAuthorDiscordId !== interaction.user.id) {
+  if (interactionData.clipSharerDiscordId !== interaction.user.id) {
     interaction.user.send({
       embeds: [
         new MessageEmbed()
@@ -17,7 +17,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
           .setDescription('Por conta disso não pode autorizar ou negar sua postagem no YouTube!')
       ]
     }).catch(console.error)
-    return new Error(`User ${interaction.user.id} is not the clip author of ${clipObjectId}!`)
+    return new Error(`User ${interaction.user.id} is not the clip sharer of ${clipObjectId}!`)
   }
 
   const clipObject = getClipObject(clipObjectId)
@@ -28,7 +28,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
   if (!(interaction.message instanceof Message)) throw new Error('Invalid interaction message!')
   await interaction.message.delete().catch(console.error)
 
-  if (interactionData.clipAuthorResponse !== 'Y') return
+  if (interactionData.clipSharerResponse !== 'Y') return
 
   const savedClipObject = updateClipObject(clipObjectId, {
     postOnInternetResponse: true
@@ -50,7 +50,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
         .setCustomId(newCustomId({
           type: 'MP',
           clipObjectId: clipObjectId,
-          clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
+          clipSharerDiscordId: interactionData.clipSharerDiscordId,
           modResponse: 'Y',
           clipCategory: 'EPIC'
         })),
@@ -60,7 +60,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
         .setCustomId(newCustomId({
           type: 'MP',
           clipObjectId: clipObjectId,
-          clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
+          clipSharerDiscordId: interactionData.clipSharerDiscordId,
           modResponse: 'Y',
           clipCategory: 'FUNNY'
         })),
@@ -70,7 +70,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
         .setCustomId(newCustomId({
           type: 'MP',
           clipObjectId: clipObjectId,
-          clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
+          clipSharerDiscordId: interactionData.clipSharerDiscordId,
           modResponse: 'N',
           clipCategory: 'TRASH'
         })),
@@ -81,7 +81,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
           type: 'MRQSAM',
           status: 'STB',
           clipObjectId: clipObjectId,
-          clipAuthorDiscordId: interactionData.clipAuthorDiscordId
+          clipSharerDiscordId: interactionData.clipSharerDiscordId
         }))
     )
 

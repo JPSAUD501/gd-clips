@@ -42,6 +42,10 @@ export async function getOutplayedDownloadData (objectId: string): Promise<{ dow
   }
 }
 
+export async function getOutplayedInfoData (objectId: string): Promise<null> {
+  return null
+}
+
 export async function outplayedDownloadClip (clipObjectId: string, clipVideoSavePath: string, logMessage?: Message): Promise<number | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject

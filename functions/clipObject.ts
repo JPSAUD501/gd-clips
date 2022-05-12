@@ -25,7 +25,7 @@ export function getClipObjectFolder (clipObjectId: string): string | Error {
   return clipObjectFolder
 }
 
-export async function createClipObject (url: string, authorId: string, channelId: string): Promise<IClipObject | Error> {
+export async function createClipObject (url: string, sharerId: string, channelId: string): Promise<IClipObject | Error> {
   const urlData = await getUrlData(url)
   const clipObjectId = await getClipObjectId(url)
   if (clipObjectId instanceof Error) return clipObjectId
@@ -34,7 +34,7 @@ export async function createClipObject (url: string, authorId: string, channelId
     provider: urlData.provider,
     providerId: urlData.providerId,
     url: url,
-    authorDiscordId: authorId,
+    sharerDiscordId: sharerId,
     firstApearDate: new Date().toJSON(),
     firstApearChannelId: channelId
   }

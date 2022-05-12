@@ -11,6 +11,8 @@
     "tsbuildinfo",
     "Valorant",
     "xvfb",
-    "youtube"
+    "youtube",
+    "youtubedl",
+    "ytdl"
   ]
 }

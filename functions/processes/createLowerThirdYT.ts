@@ -6,7 +6,7 @@ import HtmlToImg from 'node-html-to-image'
 import { Message, MessageEmbed } from 'discord.js'
 const lowerThirdYTHtml = fs.readFileSync('./media/lowerThirdYT.html', 'utf8')
 
-export async function createLowerThirdYT (clipObjectId: string, authorName: string, logMessage?: Message): Promise<void | Error> {
+export async function createLowerThirdYT (clipObjectId: string, sharerName: string, authorName?: string, logMessage?: Message): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -22,7 +22,9 @@ export async function createLowerThirdYT (clipObjectId: string, authorName: stri
   const clipObjectFolder = getClipObjectFolder(clipObjectId)
   if (clipObjectFolder instanceof Error) return clipObjectFolder
   const lowerThirdYTPath = path.join(clipObjectFolder, 'lowerThirdYT.png')
-  const authorNameString = authorName.substring(0, maxNameLowerThirdLength)
+  const sharerVisibility: string = authorName ? 'true' : 'false'
+  const sharerNameString = sharerName.substring(0, maxNameLowerThirdLength)
+  const authorNameString = authorName?.substring(0, maxNameLowerThirdLength) || sharerNameString
   await logMessage?.edit({
     embeds: [
       new MessageEmbed()
@@ -36,7 +38,7 @@ export async function createLowerThirdYT (clipObjectId: string, authorName: stri
     output: lowerThirdYTPath,
     html: lowerThirdYTHtml,
     transparent: true,
-    content: { name: authorNameString }
+    content: { authorName: authorNameString, sharerVisibility, sharerName: sharerNameString }
   }).catch(err => { return new Error(`Error creating lower third: ${err}`) })
   if (lowerThird instanceof Error) return lowerThird
   if (!fs.existsSync(lowerThirdYTPath)) return new Error(`Lower third YT not found for: ${lowerThirdYTPath}`)

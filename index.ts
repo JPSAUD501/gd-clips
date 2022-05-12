@@ -2,7 +2,7 @@ import { newClip } from './functions/newClip'
 import { clipPermissionResponse } from './functions/clipPermissionResponse'
 import { clipApprovalResponse } from './functions/clipApprovalResponse'
 import { readCustomId } from './functions/common'
-import { sendAuthorMessage, sendModalResponseRequestSAM } from './functions/clipAuthorMessage'
+import { sendSharerMessage, sendModalResponseRequestSAM } from './functions/clipSharerMessage'
 import { discordLogin } from './functions/clients/discordLogin'
 import { startQueueProcessing } from './functions/clipProcessQueue'
 import { isValidUrl } from './functions/providers'
@@ -18,6 +18,8 @@ async function startBot () {
 
   client.on('messageCreate', async message => {
     if (message.author.bot) return
+
+    // CLips links -->
     const messageArray = message.content.replace('\n', ' ').split(' ')
     for (const messageWord of messageArray) {
       console.log(messageWord)
@@ -27,7 +29,9 @@ async function startBot () {
       if (message.channel.id !== config['CLIPS-CHANNEL-ID']) continue
       console.log('New clip message!')
       if (await isValidUrl(messageWord)) await newClip(message, messageWord)
-    }
+    } // <--
+
+    // Clips attachments -->
     message.attachments.forEach(async attachment => {
       console.log(attachment.url)
       if (!await isValidUrl(attachment.url)) return
@@ -36,7 +40,7 @@ async function startBot () {
       if (message.channel.id !== config['CLIPS-CHANNEL-ID']) return
       console.log('New clip message!')
       if (await isValidUrl(attachment.url)) await newClip(message, attachment.url)
-    })
+    }) // <--
   })
 
   client.on('interactionCreate', async interaction => {
@@ -53,7 +57,7 @@ async function startBot () {
     console.log('New modal response!')
     const interactionData = readCustomId(modal.customId)
     console.log(interactionData)
-    if (interactionData.type === 'MRPSAM') await sendAuthorMessage(modal).catch(console.error)
+    if (interactionData.type === 'MRPSAM') await sendSharerMessage(modal).catch(console.error)
   })
 }
 startBot() // Start the bot

@@ -29,7 +29,7 @@ export async function editClipIG (clipObjectId: string, logMessage?: Message): P
     clips: [
       {
         layers: [
-          { type: 'video', path: clipVideoPath, resizeMode: 'cover' },
+          { type: 'video', path: clipVideoPath, resizeMode: 'contain-blur' },
           { type: 'image-overlay', path: lowerThirdIGPath }
         ]
       }
@@ -42,7 +42,7 @@ export async function editClipIG (clipObjectId: string, logMessage?: Message): P
 
   const editStart = Date.now()
   if (!clipObject.duration) return new Error(`Clip duration not found for: ${clipObjectId}`)
-  const estimatedTime = 25 * clipObject.duration * 1000
+  const estimatedTime = 27.5 * clipObject.duration * 1000
 
   const progressLogMessage = setInterval(async () => {
     await logMessage?.edit({

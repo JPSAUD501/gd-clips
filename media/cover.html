@@ -7,16 +7,18 @@
     />
   </head>
   <body>
-    <img class="v101_24" src="{{previewImg}}">
-    <div class="v101_23"></div>
-    <div class="v101_25"></div>
-    <div class="v101_26"></div>
-    <div class="v101_27"></div>
-    <div class="v101_28"></div>
-    <span class="v101_29">{{name}}</span>
+    <div class="screen">
+      <img class="img" src="{{previewImg}}">
+      <div class="imgBackground"></div>
+      <div class="authorNameBackground"></div>
+      <span class="authorName">{{name}}</span>
+      <div id="sharer-{{sharerVisibility}}">
+        <div class="sharerNameBackground"></div>
+        <span class="sharerName">Enviado por {{sharerName}}</span>
+      </div>
+    </div>
   </body>
 </html>
-<br /><br />
 <style>
   * {
     box-sizing: border-box;
@@ -24,51 +26,82 @@
   body {
     width: 1300px;
     height: 1300px;
-  }
-  .v101_23 {
-    width: 1350px;
-    height: 1350px;
-    background: rgba(52, 29, 191, 1);
-    opacity: 0.20;
     position: absolute;
-    top: -25px;
-    left: -25px;
+    top: 500px;
+    left: 1000px;
+  }
+  .screen {
+    width: 1300px;
+    height: 1300px;
+    position: absolute;
+  }
+  .imgBackground {
+    width: 1300px;
+    height: 1300px;
+    background: rgba(52, 29, 191, 1);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    opacity: 0.20;
     overflow: hidden;
   }
-  .v101_24 {
+  .img {
     width: 2400px;
     height: 1350px;
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
-    opacity: 1;
     position: relative;
     top: -25px;
     left: -550px;
     overflow: hidden;
     filter: blur(4px);
   }
-  .v101_28 {
-    width: 1400px;
-    height: 310px;
+  .authorNameBackground {
+    width: 1300px;
+    height: 300px;
     background: rgba(52, 29, 191, 1);
-    opacity: 1;
     position: absolute;
-    top: 495px;
-    left: -50px;
+    top: 500px;
     overflow: hidden;
   }
-  .v101_29 {
-    width: 1300px;
+  .authorName {
+    width: 1250px;
     height: 200px;
     color: rgba(255, 255, 255, 1);
     position: absolute;
     top: 550px;
-    left: 10px;
+    left: 25px;
     font-family: Poppins;
     font-weight: bolder;
     font-size: 140px;
-    opacity: 1;
+    text-align: center;
+  }
+  #sharer-true {
+    visibility: visible;
+  }
+  #sharer-false {
+    visibility: hidden;
+  }
+  .sharerNameBackground {
+    width: 1150px;
+    height: 150px;
+    background: rgba(52, 29, 191, 1);
+    position: absolute;
+    top: 825px;
+    left: 75px;
+    overflow: hidden;
+  }
+  .sharerName {
+    width: 1100px;
+    height: 100px;
+    color: rgba(255, 255, 255, 1);
+    position: absolute;
+    top: 850px;
+    left: 100px;
+    font-family: Poppins;
+    font-weight: bolder;
+    font-size: 70px;
     text-align: center;
   }
 </style>

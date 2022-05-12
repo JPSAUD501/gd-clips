@@ -7,7 +7,7 @@ import { editClipIG } from './processes/editClipIG'
 import { uploadToIGClip } from './processes/uploadToIGClip'
 import { getClipObject } from './clipObject'
 
-const defaultProcess = async function (clipObjectId: string, authorUser?: User, clipAuthorName?: string, logMessage?: Message): Promise<void | Error> {
+const defaultProcess = async function (clipObjectId: string, sharerUser?: User, clipSharerName?: string, logMessage?: Message): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -19,33 +19,35 @@ const defaultProcess = async function (clipObjectId: string, authorUser?: User, 
         .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
     ]
   }).catch(console.error)
+  // Set sharer name
+  if (!sharerUser && !clipSharerName) return new Error('No sharer user or sharer name found!')
+  const sharerName = clipSharerName || sharerUser?.username
+  if (!sharerName) return new Error('No sharer name found!')
+  // Set author name
+  const authorName = clipObject.providerChannelName
   // Clip download data
   const savedDownloadData = await saveDownloadData(clipObjectId)
   if (savedDownloadData instanceof Error) return savedDownloadData
   // Check if clip is too long
   const checkedMaxClipTime = checkMaxClipTime(clipObjectId)
   if (checkedMaxClipTime instanceof Error) return checkedMaxClipTime
-  // Set author name
-  if (!authorUser && !clipAuthorName) return new Error('No author user or author name found!')
-  const authorName = clipAuthorName || authorUser?.username
-  if (!authorName) return new Error('No author name found!')
   // Download
   const downloadedClip = await downloadClip(clipObjectId, logMessage)
   if (downloadedClip instanceof Error) return downloadedClip
   // Create cover
-  const createdCover = await createCover(clipObjectId, authorName, logMessage)
+  const createdCover = await createCover(clipObjectId, sharerName, authorName, logMessage)
   if (createdCover instanceof Error) return createdCover
   // Create lower third IG
-  const createdLowerThirdIG = await createLowerThirdIG(clipObjectId, authorName, logMessage)
+  const createdLowerThirdIG = await createLowerThirdIG(clipObjectId, sharerName, authorName, logMessage)
   if (createdLowerThirdIG instanceof Error) return createdLowerThirdIG
   // Edit IG
   const editedClipIG = await editClipIG(clipObjectId, logMessage)
   if (editedClipIG instanceof Error) return editedClipIG
   // Upload to IG
-  const uploadedClipIG = await uploadToIGClip(clipObjectId, authorName, logMessage)
+  const uploadedClipIG = await uploadToIGClip(clipObjectId, sharerName, authorName, logMessage)
   if (uploadedClipIG instanceof Error) return uploadedClipIG
 
-  await authorUser?.send({
+  await sharerUser?.send({
     embeds: [
       new MessageEmbed()
         .setTitle('Clipe postado com sucesso!')
@@ -69,8 +71,8 @@ const processes = {
   defaultProcess
 }
 
-export async function processClip (clipObjectId: string, authorUser?: User, clipAuthorName?: string, logMessage?: Message): Promise<void> {
-  const processed = await processes.defaultProcess(clipObjectId, authorUser, clipAuthorName, logMessage)
+export async function processClip (clipObjectId: string, sharerUser?: User, clipSharerName?: string, logMessage?: Message): Promise<void> {
+  const processed = await processes.defaultProcess(clipObjectId, sharerUser, clipSharerName, logMessage)
   if (processed instanceof Error) {
     console.error(processed.message)
     await logMessage?.edit({
@@ -80,7 +82,7 @@ export async function processClip (clipObjectId: string, authorUser?: User, clip
           .setDescription(`${processed.message}`)
       ]
     }).catch(console.error)
-    await authorUser?.send({
+    await sharerUser?.send({
       embeds: [
         new MessageEmbed()
           .setTitle('Erro ao processar clipe!')

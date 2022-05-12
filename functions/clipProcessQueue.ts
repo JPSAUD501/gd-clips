@@ -16,22 +16,22 @@ export async function startQueueProcessing (): Promise<void> {
     const queueObject = queue.shift()
     if (!queueObject) return
     inProcess.push(queueObject)
-    const { clipObjectId, authorUser, authorName, logMessage } = queueObject
+    const { clipObjectId, sharerUser, sharerName, logMessage } = queueObject
     // --> Process Clip
-    await processClip(clipObjectId, authorUser, authorName, logMessage)
+    await processClip(clipObjectId, sharerUser, sharerName, logMessage)
     // <--
     const clipProcessDone = queueClipProcessDone(clipObjectId)
     if (clipProcessDone instanceof Error) throw clipProcessDone
   }, 10000)
 }
 
-export async function addToQueue (clipObjectId: string, clipUrl?: string, logMessage?: Message, authorUser?: User, clipAuthorName?: string): Promise<void | Error> {
-  if (!authorUser && !clipAuthorName) return new Error('No author user or author name found!')
+export async function addToQueue (clipObjectId: string, clipUrl?: string, logMessage?: Message, sharerUser?: User, clipSharerName?: string): Promise<void | Error> {
+  if (!sharerUser && !clipSharerName) return new Error('No sharer user or sharer name found!')
   queue.push({
     clipObjectId,
     clipUrl: clipUrl || undefined,
-    authorUser: authorUser || undefined,
-    authorName: clipAuthorName || undefined,
+    sharerUser: sharerUser || undefined,
+    sharerName: clipSharerName || undefined,
     logMessage: logMessage || undefined
   })
   const updatedWaitingClipsLogMessages = await updateWaitingClipsLogMessages()
@@ -41,9 +41,9 @@ export async function addToQueue (clipObjectId: string, clipUrl?: string, logMes
 async function updateWaitingClipsLogMessages (): Promise<void | Error> {
   for (const clipObject of queue) {
     if (!clipObject.logMessage) continue
-    if (!clipObject.authorUser && !clipObject.authorName) return new Error('No author user or author name found!')
-    const authorNameString = clipObject.authorName || clipObject.authorUser?.username
-    if (!authorNameString) return new Error('No author name found!')
+    if (!clipObject.sharerUser && !clipObject.sharerName) return new Error('No sharer user or sharer name found!')
+    const sharerNameString = clipObject.sharerName || clipObject.sharerUser?.username
+    if (!sharerNameString) return new Error('No sharer name found!')
     const queueLength = queue.length
     const indexPositionInQueue = queue.findIndex(clip => {
       return clip.clipObjectId === clipObject.clipObjectId
@@ -55,7 +55,7 @@ async function updateWaitingClipsLogMessages (): Promise<void | Error> {
         new MessageEmbed()
           .setTitle('Clipe na fila de processamento!')
           .addField('Clipe ID:', `[${clipObject.clipObjectId}](${clipObject.clipUrl})`)
-          .addField('Autor do clipe: ', `${authorNameString}`)
+          .addField('Autor do clipe: ', `${sharerNameString}`)
           .addField('Posição na fila de processamento:', `${positionInQueue}/${queueLength}`)
           .setFooter({ text: `Ultima atualização: ${new Date().toLocaleString()}` })
       ]

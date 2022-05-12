@@ -7,7 +7,7 @@ import { Message, MessageEmbed } from 'discord.js'
 const extractFrame = require('ffmpeg-extract-frame')
 const thumbnailHtml = fs.readFileSync('./media/thumbnail.html', 'utf8')
 
-export async function createThumbnail (clipObjectId: string, authorName: string, logMessage?: Message): Promise<void | Error> {
+export async function createThumbnail (clipObjectId: string, sharerName: string, authorName?: string, logMessage?: Message): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
   await logMessage?.edit({
@@ -41,7 +41,9 @@ export async function createThumbnail (clipObjectId: string, authorName: string,
   })
   if (!fs.existsSync(previewImgPath)) return new Error(`Preview image not found for: ${previewImgPath}`)
   const thumbnailPath = path.join(clipObjectFolder, 'thumbnail.png')
-  const authorNameString = authorName.substring(0, maxNameThumbnailLength)
+  const sharerVisibility: string = authorName ? 'true' : 'false'
+  const sharerNameString = sharerName.substring(0, maxNameThumbnailLength)
+  const authorNameString = authorName?.substring(0, maxNameThumbnailLength) || sharerNameString
 
   const previewImg = fs.readFileSync(previewImgPath)
   const base64PreviewImg = previewImg.toString('base64')
@@ -51,7 +53,7 @@ export async function createThumbnail (clipObjectId: string, authorName: string,
     output: thumbnailPath,
     html: thumbnailHtml,
     transparent: false,
-    content: { name: authorNameString, previewImg: previewDataImgURI }
+    content: { authorName: authorNameString, sharerVisibility, sharerName: sharerNameString, previewImg: previewDataImgURI }
   }).catch(err => { return new Error(`Error creating thumbnail: ${err}`) })
   if (thumbnail instanceof Error) return thumbnail
   if (!fs.existsSync(thumbnailPath)) return new Error(`Thumbnail not found for: ${thumbnail}`)

@@ -4,11 +4,15 @@
     <link href="https://fonts.googleapis.com/css?family=Poppins&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <div class="screen"></div>
-      <div class="lowerThird">
-        <div class="v1_46"></div>
-        <div class="v1_47"></div>
-        <span class="v1_48">{{name}}</span>
+    <div class="screen">
+      <div class="authorLowerThird">
+        <div class="authorBackground"></div>
+        <div class="authorIcon"></div>
+        <span class="authorName">{{authorName}}</span>
+      </div>
+      <div id="sharerLowerThird-{{sharerVisibility}}" class="sharerLowerThird">
+        <div class="sharerBackground"></div>
+        <div class="sharerName">Enviado por {{sharerName}}</div>
       </div>
     </div>
   </body>
@@ -17,28 +21,25 @@
   * {
     box-sizing: border-box;
   }
-
   body {
     width: 1300px;
     height: 1300px;
     font-size: 14px;
+    /* border: 1px solid red; */
   }
   .screen {
     width: 1300px;
     height: 1300px;
     background-color: rgba(0, 0, 0, 0);
-    position: absolute;
+    position: static;
     top: 0;
     left: 0;
-    z-index: -1;
   }
-  .lowerThird {
+  .authorLowerThird {
     position: absolute;
     top: 1000px;
-    width: 500px;
-    height: 100px;
   }
-  .v1_46 {
+  .authorBackground {
     width: 500px;
     height: 100px;
     background: rgba(52, 29, 191, 1);
@@ -48,8 +49,7 @@
     left: 0px;
     overflow: hidden;
   }
-
-  .v1_47 {
+  .authorIcon {
     width: 62px;
     height: 80px;
     background: url("https://raw.githubusercontent.com/grupodisparate/FILES/master/icon.png");
@@ -62,8 +62,7 @@
     left: 15px;
     top: 10px;
   }
-
-  .v1_48 {
+  .authorName {
     width: 392px;
     color: rgba(255, 255, 255, 1);
     position: absolute;
@@ -72,6 +71,38 @@
     font-family: Poppins;
     font-weight: bolder;
     font-size: 42px;
+    opacity: 1;
+    text-align: center;
+  }
+  #sharerLowerThird-false {
+    visibility: hidden;
+  }
+  #sharerLowerThird-true {
+    visibility: visible;
+  }
+  .sharerLowerThird {
+    position: absolute;
+    top: 1110px;
+  }
+  .sharerBackground {
+    width: 400px;
+    height: 50px;
+    background: rgba(52, 29, 191, 1);
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    overflow: hidden;
+  }
+  .sharerName {
+    width: 380px;
+    color: rgba(255, 255, 255, 1);
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    font-family: Poppins;
+    font-weight: bolder;
+    font-size: 24px;
     opacity: 1;
     text-align: center;
   }

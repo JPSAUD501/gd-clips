@@ -7,20 +7,20 @@ import { client, config } from '../constants'
 export async function sendModalResponseRequestSAM (interaction: ButtonInteraction): Promise<void | Error> {
   const interactionData = readCustomId(interaction.customId)
   if (interactionData.type !== 'MRQSAM') return new Error('Invalid interaction type!')
-  const clipAuthor = await client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
-  if (!clipAuthor) return new Error(`Could not find discord user with id ${interactionData.clipAuthorDiscordId}`)
+  const clipSharer = await client.users.fetch(interactionData.clipSharerDiscordId).catch(console.error)
+  if (!clipSharer) return new Error(`Could not find discord user with id ${interactionData.clipSharerDiscordId}`)
   const modal = new Modal() // We create a Modal
     .setCustomId(newCustomId({
       type: 'MRPSAM',
       status: interactionData.status,
-      clipAuthorDiscordId: interactionData.clipAuthorDiscordId,
+      clipSharerDiscordId: interactionData.clipSharerDiscordId,
       clipObjectId: interactionData.clipObjectId
     }))
     .setTitle('Notificação para o autor do clipe!')
     .addComponents(
       new TextInputComponent()
         .setCustomId('MESSAGE')
-        .setLabel(`Mensagem para ${clipAuthor.username}:`)
+        .setLabel(`Mensagem para ${clipSharer.username}:`)
         .setStyle('LONG')
         .setMinLength(4)
         .setMaxLength(100)
@@ -32,12 +32,12 @@ export async function sendModalResponseRequestSAM (interaction: ButtonInteractio
   })
 }
 
-export async function sendAuthorMessage (modal: ModalSubmitInteraction): Promise<void | Error> {
+export async function sendSharerMessage (modal: ModalSubmitInteraction): Promise<void | Error> {
   const interactionData = readCustomId(modal.customId)
   if (interactionData.type !== 'MRPSAM') return new Error('Invalid modal type!')
   const firstResponse = modal.getTextInputValue('MESSAGE')
-  const clipAuthor = await client.users.fetch(interactionData.clipAuthorDiscordId).catch(console.error)
-  if (!clipAuthor) return new Error('Clip author not found!')
+  const clipSharer = await client.users.fetch(interactionData.clipSharerDiscordId).catch(console.error)
+  if (!clipSharer) return new Error('Clip sharer not found!')
   const logChannel = client.channels.cache.get(config['BOT-LOG-CHANNEL-ID'])
   if (!logChannel) return new Error('Log channel not found!')
   if (!(logChannel instanceof TextChannel)) return new Error('Log channel is not a text channel!')
@@ -66,10 +66,10 @@ export async function sendAuthorMessage (modal: ModalSubmitInteraction): Promise
       .setFooter({ text: `Mensagem enviada por ${modal.user.username}` })
   }
   await logChannel.send({
-    content: `Uma mensagem em relação ao clipe de ID: ${interactionData.clipObjectId} foi enviada para o autor do clipe **"${clipAuthor.username}" - "${clipAuthor}"**!`,
+    content: `Uma mensagem em relação ao clipe de ID: ${interactionData.clipObjectId} foi enviada para o autor do clipe **"${clipSharer.username}" - "${clipSharer}"**!`,
     embeds: [embed]
   }).catch(console.error)
-  await clipAuthor.send({ embeds: [embed] }).catch(console.error)
+  await clipSharer.send({ embeds: [embed] }).catch(console.error)
   const msg = await modal.reply({
     content: 'Mensagem enviada com sucesso!',
     ephemeral: false,

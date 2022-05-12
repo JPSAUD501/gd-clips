@@ -1,16 +1,16 @@
 import { config, interactionCustomIdSeparator } from '../constants'
-import { IRequestPermission, IModPermission, IModalRequestSendAuthorMessage, IModalResponseSendAuthorMessage } from '../interfaces'
-import { getDownloadData } from './providers'
+import { IRequestPermission, IModPermission, IModalRequestSendSharerMessage, IModalResponseSendSharerMessage } from '../interfaces'
+import { getDownloadData, getInfoData } from './providers'
 import { updateClipObject, getClipObject } from './clipObject'
 const separator = interactionCustomIdSeparator
 
-export function newCustomId ({ ...args }: IRequestPermission | IModPermission | IModalRequestSendAuthorMessage | IModalResponseSendAuthorMessage): string {
+export function newCustomId ({ ...args }: IRequestPermission | IModPermission | IModalRequestSendSharerMessage | IModalResponseSendSharerMessage): string {
   if (args.type === 'RP') { // Request Permission (RP)
     return `${
       args.type + separator +
       args.clipObjectId + separator +
-      args.clipAuthorResponse + separator +
-      args.clipAuthorDiscordId
+      args.clipSharerResponse + separator +
+      args.clipSharerDiscordId
     }`
   }
   if (args.type === 'MP') { // Mod Permission (MP)
@@ -19,14 +19,14 @@ export function newCustomId ({ ...args }: IRequestPermission | IModPermission | 
       args.clipObjectId + separator +
       args.modResponse + separator +
       args.clipCategory + separator +
-      args.clipAuthorDiscordId
+      args.clipSharerDiscordId
     }`
   }
   if (args.type === 'MRQSAM') { // Mod Permission (MP)
     return `${
       args.type + separator +
       args.status + separator +
-      args.clipAuthorDiscordId + separator +
+      args.clipSharerDiscordId + separator +
       args.clipObjectId
     }`
   }
@@ -34,7 +34,7 @@ export function newCustomId ({ ...args }: IRequestPermission | IModPermission | 
     return `${
       args.type + separator +
       args.status + separator +
-      args.clipAuthorDiscordId + separator +
+      args.clipSharerDiscordId + separator +
       args.clipObjectId
     }`
   }
@@ -42,23 +42,23 @@ export function newCustomId ({ ...args }: IRequestPermission | IModPermission | 
   throw new Error('Invalid type')
 }
 
-export function readCustomId (customId: string): IRequestPermission | IModPermission | IModalRequestSendAuthorMessage | IModalResponseSendAuthorMessage {
+export function readCustomId (customId: string): IRequestPermission | IModPermission | IModalRequestSendSharerMessage | IModalResponseSendSharerMessage {
   const args = customId.split(separator)
   const type = args.shift()
 
   if (type === 'RP') { // Request Permission (RP)
-    const [clipObjectId, clipAuthorResponse, clipAuthorDiscordId] = args
-    if (clipAuthorResponse !== 'Y' && clipAuthorResponse !== 'N') throw new Error('Invalid response')
+    const [clipObjectId, clipSharerResponse, clipSharerDiscordId] = args
+    if (clipSharerResponse !== 'Y' && clipSharerResponse !== 'N') throw new Error('Invalid response')
     return {
       type,
       clipObjectId,
-      clipAuthorResponse,
-      clipAuthorDiscordId
+      clipSharerResponse,
+      clipSharerDiscordId
     }
   }
 
   if (type === 'MP') { // Mod Permission (MP)
-    const [clipObjectId, modResponse, clipCategory, clipAuthorDiscordId] = args
+    const [clipObjectId, modResponse, clipCategory, clipSharerDiscordId] = args
     if (modResponse !== 'Y' && modResponse !== 'N') throw new Error('Invalid response')
     if (clipCategory !== 'FUNNY' && clipCategory !== 'EPIC' && clipCategory !== 'TRASH') throw new Error('Invalid category')
     return {
@@ -66,28 +66,28 @@ export function readCustomId (customId: string): IRequestPermission | IModPermis
       clipObjectId,
       modResponse,
       clipCategory,
-      clipAuthorDiscordId
+      clipSharerDiscordId
     }
   }
 
-  if (type === 'MRQSAM') { // Modal Request Send Author Message (MRQSAM)
-    const [status, clipAuthorDiscordId, clipObjectId] = args
+  if (type === 'MRQSAM') { // Modal Request Send Sharer Message (MRQSAM)
+    const [status, clipSharerDiscordId, clipObjectId] = args
     if (status !== 'STB' && status !== 'A' && status !== 'D') throw new Error('Invalid status')
     return {
       type,
       status,
-      clipAuthorDiscordId,
+      clipSharerDiscordId,
       clipObjectId
     }
   }
 
-  if (type === 'MRPSAM') { // Modal Response Send Author Message (MRPSAM)
-    const [status, clipAuthorDiscordId, clipObjectId] = args
+  if (type === 'MRPSAM') { // Modal Response Send Sharer Message (MRPSAM)
+    const [status, clipSharerDiscordId, clipObjectId] = args
     if (status !== 'STB' && status !== 'A' && status !== 'D') throw new Error('Invalid status')
     return {
       type,
       status,
-      clipAuthorDiscordId,
+      clipSharerDiscordId,
       clipObjectId
     }
   }
@@ -95,34 +95,31 @@ export function readCustomId (customId: string): IRequestPermission | IModPermis
   throw new Error('Invalid type')
 }
 
-// export function getPathsRecursively (dirPath: string): string[] {
-//   const listAllDirs = (directory: string): string[] => {
-//     let fileList: string[] = []
-//     const files = fs.readdirSync(directory)
-//     for (const file of files) {
-//       const p = path.join(directory, file)
-//       if ((fs.statSync(p)).isDirectory()) {
-//         fileList.push(p)
-//         fileList = [...fileList, ...(listAllDirs(p))]
-//       }
-//     }
-//     return fileList
-//   }
-//   const result = listAllDirs(dirPath)
-//   return result
-// }
-
 export async function saveDownloadData (clipObjectId: string): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return new Error(`Clip object not found for: ${clipObjectId}`)
   const downloadData = await getDownloadData(clipObject.objectId)
   if (downloadData instanceof Error) return downloadData
   const { downloadUrl, duration } = downloadData
-  const saveDownloadData1 = updateClipObject(clipObject.objectId, {
+  const saveDownloadData = updateClipObject(clipObject.objectId, {
     downloadUrl,
     duration
   })
-  if (saveDownloadData1 instanceof Error) return saveDownloadData1
+  if (saveDownloadData instanceof Error) return saveDownloadData
+}
+
+export async function saveInfoData (clipObjectId: string): Promise<void | Error> {
+  const clipObject = getClipObject(clipObjectId)
+  if (clipObject instanceof Error) return new Error(`Clip object not found for: ${clipObjectId}`)
+  const infoData = await getInfoData(clipObject.objectId)
+  if (infoData instanceof Error) return infoData
+  if (!infoData) return console.log('No info data for this clip or provider')
+  const { providerChannelName, providerClipName } = infoData
+  const saveInfoData = updateClipObject(clipObject.objectId, {
+    providerChannelName,
+    providerClipName
+  })
+  if (saveInfoData instanceof Error) return saveInfoData
 }
 
 export function checkMaxClipTime (clipObjectId: string): void | Error {

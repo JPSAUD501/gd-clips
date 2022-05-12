@@ -1,5 +1,5 @@
 import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed, Message } from 'discord.js'
-import { falseAuthorshipReply } from './checks/clipAuthorship'
+import { falseSharerAuthorshipReply } from './checks/clipSharerAuthorship'
 import { getClipObject, saveClipObject, getClipObjectId } from './clipObject'
 import { newCustomId } from './common'
 import { getUrlData } from './providers'
@@ -46,7 +46,7 @@ export async function newClip (message: Message, url: string): Promise<void> {
     clipsChannelPostDate: new Date().toISOString()
   })
   if (savedClipObject instanceof Error) return console.error(savedClipObject.message)
-  if (clipObject.authorDiscordId !== message.author.id) return await falseAuthorshipReply(message, msgReply, clipObject)
+  if (clipObject.sharerDiscordId !== message.author.id) return await falseSharerAuthorshipReply(message, msgReply, clipObject)
 
   const alreadyOptedToPostOnInternetReply = async () => {
     const embedAlreadyOptedToPostOnInternet = new MessageEmbed()
@@ -74,8 +74,8 @@ export async function newClip (message: Message, url: string): Promise<void> {
         .setCustomId(newCustomId({
           type: 'RP',
           clipObjectId: clipObject.objectId,
-          clipAuthorDiscordId: String(message.author.id),
-          clipAuthorResponse: 'Y'
+          clipSharerDiscordId: String(message.author.id),
+          clipSharerResponse: 'Y'
         })),
       new MessageButton()
         .setLabel('NÃO')
@@ -83,8 +83,8 @@ export async function newClip (message: Message, url: string): Promise<void> {
         .setCustomId(newCustomId({
           type: 'RP',
           clipObjectId: clipObject.objectId,
-          clipAuthorDiscordId: String(message.author.id),
-          clipAuthorResponse: 'N'
+          clipSharerDiscordId: String(message.author.id),
+          clipSharerResponse: 'N'
         }))
     )
 
