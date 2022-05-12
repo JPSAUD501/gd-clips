@@ -1,4 +1,4 @@
-import { checkMaxClipTime, saveDownloadData } from './common'
+import { checkMaxClipTime, saveDownloadData, saveInfoData } from './common'
 import { downloadClip } from './providers'
 import { Message, MessageEmbed, User } from 'discord.js'
 import { createCover } from './processes/createCover'
@@ -23,6 +23,9 @@ const defaultProcess = async function (clipObjectId: string, sharerUser?: User, 
   if (!sharerUser && !clipSharerName) return new Error('No sharer user or sharer name found!')
   const sharerName = clipSharerName || sharerUser?.username
   if (!sharerName) return new Error('No sharer name found!')
+  // Clip info data
+  const savedInfoData = await saveInfoData(clipObjectId)
+  if (savedInfoData instanceof Error) return savedInfoData
   // Set author name
   const authorName = clipObject.providerChannelName
   // Clip download data

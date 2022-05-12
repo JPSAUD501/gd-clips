@@ -59,7 +59,7 @@ export async function getTwitchInfoData (objectId: string): Promise<{ providerCh
   if (clipObject instanceof Error) return clipObject
   const url = sanitizeTwitchUrl(clipObject.url)
   const clip = await ytdl(url, { dumpSingleJson: true })
-  const providerChannelName = clip.channel
+  const providerChannelName = clip.creator
   const providerClipName = clip.title
   return {
     providerChannelName,
