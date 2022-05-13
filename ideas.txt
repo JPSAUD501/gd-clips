@@ -5,18 +5,6 @@
 3 TODO: Change Categories and make them more dynamic
 2 TODO: Instagram Stories
 2 TODO: Maybe post in Twitter
-1 TODO: Twitch videos youtube-dl
-
-https://clips.twitch.tv/RichBraveSamosaKappaWealth-l06jW27Ei-No4ZGF
-https://clips.twitch.tv/SpoopyPolishedDinosaurDoritosChip-WBf7oACDVWFHAa_F
-https://clips.twitch.tv/ReliableSilkyStingrayPoooound-1eU1SR7XmHynSrNE
-https://clips.twitch.tv/IntelligentAdorableSpiderPupper-_jA2tM8j8SE1TJTW
-https://www.twitch.tv/yarlxws/clip/ScrumptiousAggressiveElephantPunchTrees-3oAI3yljX61DsKys
-https://clips.twitch.tv/ScrumptiousAggressiveElephantPunchTrees-3oAI3yljX61DsKys
-
-https://www.twitch.tv ---- /clip/
-https://clips.twitch.tv
-
 
 CREATE NEW Compiled
 -- For each clipObject check data and select clips in array

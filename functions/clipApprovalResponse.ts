@@ -115,12 +115,6 @@ export async function clipApprovalResponse (interaction: ButtonInteraction): Pro
     category: interactionData.clipCategory
   })
   if (clipObjectCategory instanceof Error) return clipObjectCategory
-  const addedToQueue = addToQueue(
-    interactionData.clipObjectId,
-    clipObject.url,
-    logMessage,
-    clipSharer,
-    undefined
-  )
+  const addedToQueue = addToQueue(interactionData.clipObjectId)
   if (addedToQueue instanceof Error) return addedToQueue
 }

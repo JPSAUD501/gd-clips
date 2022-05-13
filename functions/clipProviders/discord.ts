@@ -59,7 +59,8 @@ export async function discordDownloadClip (clipObjectId: string, clipVideoSavePa
   }
   if (!clipObject.downloadUrl) return new Error(`Clip download url not found for: ${clipObjectId}`)
   const dateStart = new Date().getTime()
-  const clip = await axios.get(clipObject.downloadUrl, { responseType: 'stream' })
+  const clip = await axios.get(clipObject.downloadUrl, { responseType: 'stream' }).catch(error => { return new Error(error) })
+  if (clip instanceof Error) return clip
   const writer = fs.createWriteStream(clipVideoSavePath)
   clip.data.pipe(writer)
   const contentLengthString = clip.headers['content-length']

@@ -28,7 +28,7 @@ async function startBot () {
       if (clipObject instanceof Error) return console.error(clipObject)
       if (message.channel.id !== config['CLIPS-CHANNEL-ID']) continue
       console.log('New clip message!')
-      if (await isValidUrl(messageWord)) await newClip(message, messageWord)
+      await newClip(message, messageWord)
     } // <--
 
     // Clips attachments -->
@@ -39,7 +39,7 @@ async function startBot () {
       if (clipObject instanceof Error) return console.error(clipObject)
       if (message.channel.id !== config['CLIPS-CHANNEL-ID']) return
       console.log('New clip message!')
-      if (await isValidUrl(attachment.url)) await newClip(message, attachment.url)
+      await newClip(message, attachment.url)
     }) // <--
   })
 

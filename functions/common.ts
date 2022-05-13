@@ -113,7 +113,7 @@ export async function saveInfoData (clipObjectId: string): Promise<void | Error>
   if (clipObject instanceof Error) return new Error(`Clip object not found for: ${clipObjectId}`)
   const infoData = await getInfoData(clipObject.objectId)
   if (infoData instanceof Error) return infoData
-  if (!infoData) return console.log('No info data for this clip or provider')
+  if (!infoData) return
   const { providerChannelName, providerClipName } = infoData
   const saveInfoData = updateClipObject(clipObject.objectId, {
     providerChannelName,

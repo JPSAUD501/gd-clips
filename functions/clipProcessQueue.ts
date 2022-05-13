@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, User } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 import { IQueueObject } from '../interfaces'
 import { processClip } from './processClip'
 import { config } from '../constants'
@@ -26,8 +26,7 @@ export async function startQueueProcessing (): Promise<void> {
   }, 10000)
 }
 
-export async function addToQueue (clipObjectId: string, clipUrl?: string, logMessage?: Message, sharerUser?: User, clipSharerName?: string): Promise<void | Error> {
-  if (!sharerUser && !clipSharerName) return new Error('No sharer user or sharer name found!')
+export async function addToQueue (clipObjectId: string, logMessage?: Message): Promise<void | Error> {
   queue.push({
     clipObjectId,
     logMessage: logMessage || undefined

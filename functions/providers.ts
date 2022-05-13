@@ -54,6 +54,13 @@ export async function getUrlData (url: string): Promise<IUrlData> {
   }
 }
 
+export function activateAuthorshipSystemForThisProvider (provider: string): boolean {
+  if (provider === 'outplayed') return true
+  if (provider === 'discord') return true
+  if (provider === 'twitch') return false
+  throw new Error('Invalid provider')
+}
+
 export async function getDownloadData (objectId: string): Promise<{ downloadUrl: string; duration: number } | Error> {
   const clipObject = getClipObject(objectId)
   if (clipObject instanceof Error) return clipObject

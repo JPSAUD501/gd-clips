@@ -1,5 +1,5 @@
 import { checkIClipObject, IClipObject } from '../interfaces'
-import { getUrlData, isValidUrl } from './providers'
+import { activateAuthorshipSystemForThisProvider, getUrlData, isValidUrl } from './providers'
 import fs from 'fs'
 import { client, rootDbPath } from '../constants'
 import path from 'path'
@@ -35,6 +35,7 @@ export async function createClipObject (url: string, sharerId: string, channelId
     objectId: clipObjectId,
     provider: urlData.provider,
     providerId: urlData.providerId,
+    authorshipSystem: activateAuthorshipSystemForThisProvider(urlData.provider),
     url: url,
     sharerDiscordId: sharerId,
     sharerDiscordName: sharerUser.username,
