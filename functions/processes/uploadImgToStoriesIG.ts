@@ -19,8 +19,8 @@ export async function uploadImgToStoriesIG (clipObjectId: string, logMessage?: M
 
   const clipObjectFolder = getClipObjectFolder(clipObjectId)
   if (clipObjectFolder instanceof Error) return clipObjectFolder
-  const imagePath = path.join(clipObjectFolder, 'clipEditedIG.mp4')
-  if (!fs.readFileSync(imagePath)) return new Error(`Clip edited IG not found for: ${clipObjectId}`)
+  const imagePath = path.join(clipObjectFolder, 'stories.jpg')
+  if (!fs.readFileSync(imagePath)) return new Error(`Stories IG not found for: ${clipObjectId}`)
   const clipDescription: string = config['IG-CLIP-DESCRIPTION']
   if (!clipDescription) return new Error('Default description not found')
   if (!clipObject.category) return new Error('Clip category not found')

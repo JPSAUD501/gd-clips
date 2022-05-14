@@ -1,12 +1,12 @@
 import { instagramLogin } from '../functions/clients/instagramLogin'
-import { createImgStoriesIG } from '../functions/processes/createImgStoriesIG'
-import { uploadImgToStoriesIG } from '../functions/processes/uploadImgToStoriesIG'
+import { discordLogin } from '../functions/clients/discordLogin'
+import { addToQueue, startQueueProcessing } from '../functions/clipProcessQueue'
 
 async function test () {
+  await discordLogin()
   await instagramLogin()
-  const createdImg = await createImgStoriesIG('outplayed@kPkXJ1')
-  if (createdImg instanceof Error) return console.log(createdImg)
-  const postedImgStories = await uploadImgToStoriesIG('outplayed@kPkXJ1')
-  if (postedImgStories instanceof Error) return console.log(postedImgStories)
+  startQueueProcessing()
+  const queue = addToQueue('outplayed@kPkXJ1')
+  if (queue instanceof Error) return console.log(queue)
 }
 test()
