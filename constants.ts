@@ -39,6 +39,7 @@ export const igClient = new IgApiClient() // Instagram Client
 /* From .ENV */ export const instagramPassword = instagramPasswordEnv // Instagram Password
 export const maxNameLowerThirdLength = 9 // Unless you change the html template, this is the max length of name in the lower third
 export const maxNameThumbnailLength = 9 // Unless you change the html template, this is the max length of the name in the thumbnail
+export const maxNameFrameStoriesLength = 9 // Unless you change the html template, this is the max length of the name in the frame stories
 export const interactionCustomIdSeparator = '§' // I don't recommend changing this
 export const rootDbPath = 'db' // Root path for the database
 export const credentialsPath = 'youtube-auth/client_secret.json' // Root path for the youtube client secret

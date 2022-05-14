@@ -4,9 +4,11 @@ import { Message, MessageEmbed, User } from 'discord.js'
 import { createCover } from './processes/createCover'
 import { createLowerThirdIG } from './processes/createLowerThirdIG'
 import { editClipIG } from './processes/editClipIG'
-import { uploadToIGClip } from './processes/uploadToIGClip'
+import { uploadToIG } from './processes/uploadToIG'
 import { getClipObject } from './clipObject'
 import { client } from '../constants'
+import { uploadImgToStoriesIG } from './processes/uploadImgToStoriesIG'
+import { createImgStoriesIG } from './processes/createImgStoriesIG'
 
 const defaultProcess = async function (clipObjectId: string, sharerUser?: User, logMessage?: Message): Promise<void | Error> {
   const clipObject = getClipObject(clipObjectId)
@@ -42,8 +44,14 @@ const defaultProcess = async function (clipObjectId: string, sharerUser?: User, 
   const editedClipIG = await editClipIG(clipObjectId, logMessage)
   if (editedClipIG instanceof Error) return editedClipIG
   // Upload to IG
-  const uploadedClipIG = await uploadToIGClip(clipObjectId, logMessage)
+  const uploadedClipIG = await uploadToIG(clipObjectId, logMessage)
   if (uploadedClipIG instanceof Error) return uploadedClipIG
+  // Create Image Story IG
+  const createdImageStoriesIG = await createImgStoriesIG(clipObjectId, logMessage)
+  if (createdImageStoriesIG instanceof Error) return createdImageStoriesIG
+  // Upload to Stories IG
+  const uploadedImgToStoriesIG = await uploadImgToStoriesIG(clipObjectId, logMessage)
+  if (uploadedImgToStoriesIG instanceof Error) return uploadedImgToStoriesIG
 
   await sharerUser?.send({
     embeds: [

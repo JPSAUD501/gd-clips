@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="screen">
+      <div class="imgBackground"></div>
+      <div class="infoBackground"></div>
+      <span class="infoText">Novo clipe nos posts!</span>
+      <div class="authorNameBackground"></div>
+      <span class="authorName">{{authorName}}</span>
+      <div id="sharer-{{sharerVisibility}}">
+        <div class="sharerNameBackground"></div>
+        <span class="sharerName">Enviado por {{sharerName}}</span>
+      </div>
+    </div>
+  </body>
+</html>
+<style>
+  * {
+    box-sizing: border-box;
+    /* border: 1px solid red; */
+  }
+  body {
+    width: 1080px;
+    height: 1920px;
+    position: absolute;
+    top: 500px;
+    left: 1000px;
+  }
+  .screen {
+    width: 1080px;
+    height: 1920px;
+    position: absolute;
+  }
+  .infoBackground {
+    width: 1080px;
+    height: 150px;
+    background: rgba(52, 29, 191, 1);
+    position: absolute;
+    top: 335px;
+    overflow: hidden;
+  }
+  .infoText {
+    width: 1000px;
+    height: 80px;
+    color: rgba(255, 255, 255, 1);
+    position: absolute;
+    top: 370px;
+    left: 40px;
+    font-family: Poppins;
+    font-weight: bolder;
+    font-size: 50px;
+    text-align: center;
+  }
+  .imgBackground {
+    width: 1080px;
+    height: 1920px;
+    background: rgba(52, 29, 191, 1);
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    opacity: 0.20;
+    overflow: hidden;
+  }
+  .authorNameBackground {
+    width: 1080px;
+    height: 300px;
+    background: rgba(52, 29, 191, 1);
+    position: absolute;
+    top: 510px;
+    overflow: hidden;
+  }
+  .authorName {
+    width: 1000px;
+    height: 170px;
+    color: rgba(255, 255, 255, 1);
+    position: absolute;
+    top: 580px;
+    left: 40px;
+    font-family: Poppins;
+    font-weight: bolder;
+    font-size: 110px;
+    text-align: center;
+  }
+  #sharer-true {
+    visibility: visible;
+  }
+  #sharer-false {
+    visibility: hidden;
+  }
+  .sharerNameBackground {
+    width: 1080px;
+    height: 150px;
+    background: rgba(52, 29, 191, 1);
+    position: absolute;
+    top: 835px;
+    overflow: hidden;
+  }
+  .sharerName {
+    width: 1000px;
+    height: 80px;
+    color: rgba(255, 255, 255, 1);
+    position: absolute;
+    top: 870px;
+    left: 40px;
+    font-family: Poppins;
+    font-weight: bolder;
+    font-size: 50px;
+    text-align: center;
+  }
+</style>
