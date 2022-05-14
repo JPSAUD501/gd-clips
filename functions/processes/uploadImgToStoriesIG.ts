@@ -38,7 +38,6 @@ export async function uploadImgToStoriesIG (clipObjectId: string, logMessage?: M
   }
   ).catch(console.error)
   if (!publishResult) return new Error('Error publishing video')
-  console.log(publishResult)
   await logMessage?.edit({
     embeds: [
       new MessageEmbed()
