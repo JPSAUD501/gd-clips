@@ -2,6 +2,14 @@
 import { Message } from 'discord.js'
 import { checker } from 'ts-data-checker'
 
+export type TLogOperators = 'UploadedToInstagram' |
+                            'UploadedToInstagramStories' |
+                            'UploadedToYoutube' |
+                            'AddToNextCompilation' |
+                            'Category'
+
+type TClipCategories = string | 'TRASH'
+
 export interface IRequestPermission {
   type: 'RP',
   clipObjectId: string,
@@ -17,7 +25,7 @@ export interface IModPermission {
   type: 'MP',
   clipObjectId: string,
   modResponse: 'Y' | 'N',
-  clipCategory: 'FUNNY' | 'EPIC' | 'TRASH',
+  clipCategory: TClipCategories,
   clipSharerDiscordId: string
 }
 export function checkIModPermission (obj: any): boolean {
@@ -80,7 +88,7 @@ export interface IClipObject {
   clipsChannelPostDate?: string,
   postOnInternetQuestionDate?: string,
   postOnInternetResponse?: boolean,
-  category?: 'FUNNY' | 'EPIC' | 'TRASH',
+  category?: TClipCategories,
   downloadUrl?: string,
   duration?: number,
   downloadTimer?: number,

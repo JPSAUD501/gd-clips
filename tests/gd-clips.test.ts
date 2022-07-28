@@ -1,12 +1,6 @@
-import { instagramLogin } from '../functions/clients/instagramLogin'
-import { discordLogin } from '../functions/clients/discordLogin'
-import { addToQueue, startQueueProcessing } from '../functions/clipProcessQueue'
+import { saveToLog } from '../functions/common'
 
 async function test () {
-  await discordLogin()
-  await instagramLogin()
-  startQueueProcessing()
-  const queue = addToQueue('outplayed@kPkXJ1')
-  if (queue instanceof Error) return console.log(queue)
+  saveToLog('twitch@sL1bOlutTtks4HQG', 'Category')
 }
 test()

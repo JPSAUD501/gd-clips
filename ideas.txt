@@ -1,10 +1,7 @@
-6 TODO: Color by level in the server
+6 TODO: Automatic detect game https://teachablemachine.withgoogle.com/train/image
 5 TODO: Random vido tittle
-5 TODO: A way to check most popular clips in Instagram
 4 TODO: Compiled
 3 TODO: Change Categories and make them more dynamic
-2 TODO: Instagram Stories
-2 TODO: Maybe post in Twitter
 
 CREATE NEW Compiled
 -- For each clipObject check data and select clips in array

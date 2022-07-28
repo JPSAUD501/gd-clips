@@ -52,7 +52,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
           clipObjectId: clipObjectId,
           clipSharerDiscordId: interactionData.clipSharerDiscordId,
           modResponse: 'Y',
-          clipCategory: 'EPIC'
+          clipCategory: 'ÉPICO'
         })),
       new MessageButton()
         .setLabel('Aprovar clipe engraçado!')
@@ -62,7 +62,7 @@ export async function clipPermissionResponse (interaction: ButtonInteraction): P
           clipObjectId: clipObjectId,
           clipSharerDiscordId: interactionData.clipSharerDiscordId,
           modResponse: 'Y',
-          clipCategory: 'FUNNY'
+          clipCategory: 'ENGRAÇADO'
         })),
       new MessageButton()
         .setLabel('Negar clipe!')

@@ -19,8 +19,7 @@ export function getClipObjectPath (clipObjectId: string): string | Error {
 export function getClipObjectFolder (clipObjectId: string): string | Error {
   const clipObject = getClipObject(clipObjectId)
   if (clipObject instanceof Error) return clipObject
-  if (!clipObject.category) return new Error('No category')
-  const clipObjectFolder = path.join(rootDbPath, clipObject.category, clipObjectId)
+  const clipObjectFolder = path.join(rootDbPath, 'CLIPS', clipObjectId)
   if (!fs.existsSync(clipObjectFolder)) fs.mkdirSync(clipObjectFolder, { recursive: true })
   return clipObjectFolder
 }

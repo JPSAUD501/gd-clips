@@ -1,7 +1,10 @@
-import { config, interactionCustomIdSeparator } from '../constants'
-import { IRequestPermission, IModPermission, IModalRequestSendSharerMessage, IModalResponseSendSharerMessage } from '../interfaces'
+import { config, interactionCustomIdSeparator, logFilePath, rootDbPath } from '../constants'
+import { IRequestPermission, IModPermission, IModalRequestSendSharerMessage, IModalResponseSendSharerMessage, TLogOperators } from '../interfaces'
 import { getDownloadData, getInfoData } from './providers'
 import { updateClipObject, getClipObject } from './clipObject'
+import path from 'path'
+import fs from 'fs'
+import YAML from 'yaml'
 const separator = interactionCustomIdSeparator
 
 export function newCustomId ({ ...args }: IRequestPermission | IModPermission | IModalRequestSendSharerMessage | IModalResponseSendSharerMessage): string {
@@ -60,7 +63,6 @@ export function readCustomId (customId: string): IRequestPermission | IModPermis
   if (type === 'MP') { // Mod Permission (MP)
     const [clipObjectId, modResponse, clipCategory, clipSharerDiscordId] = args
     if (modResponse !== 'Y' && modResponse !== 'N') throw new Error('Invalid response')
-    if (clipCategory !== 'FUNNY' && clipCategory !== 'EPIC' && clipCategory !== 'TRASH') throw new Error('Invalid category')
     return {
       type,
       clipObjectId,
@@ -131,4 +133,21 @@ export function checkMaxClipTime (clipObjectId: string): void | Error {
   if (!maxClipTime) return new Error('MAX-CLIP-TIME not found in config.yaml')
   if (maxClipTime < 1) return new Error('MAX-CLIP-TIME must be greater or equal to 1!')
   if (clipObject.duration >= maxClipTime) return new Error(`Video duration is too long! Max: ${maxClipTime}`)
+}
+
+export function saveToLog (clipObjectId: string, logOperation: TLogOperators): void | Error {
+  const clipObject = getClipObject(clipObjectId)
+  if (clipObject instanceof Error) return
+  const logFileDir = path.join(rootDbPath, logFilePath, 'log.yaml')
+  if (!fs.existsSync(logFileDir)) {
+    fs.mkdirSync(logFileDir, { recursive: true })
+    fs.writeFileSync(logFileDir, '')
+  }
+  const logFile = YAML.parse(fs.readFileSync(logFileDir, 'utf8'))
+  if (!logFile) return new Error('Log file not found!')
+  if (logOperation === 'Category') {
+    if (!clipObject.category) return new Error('Clip category not found!')
+    logFile.Category[clipObject.category].push(clipObject.objectId)
+  }
+  logFile[logOperation].push(clipObject.objectId)
 }
