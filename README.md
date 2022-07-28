@@ -1,4 +1,4 @@
-# GD-NEWS
+# GD-CLIPS
 
 ![Discord](https://dcbadge.vercel.app/api/shield/141957307591426050)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
